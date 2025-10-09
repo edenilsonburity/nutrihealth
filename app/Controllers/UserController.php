@@ -16,7 +16,7 @@ class UserController {
             $hash=password_hash($password,PASSWORD_DEFAULT);
             $user=new User(null,$name,$email,$hash,$typeUser);
             $this->repo->create($user);
-            header('Location: /nutrihelth/public/?action=index'); exit;
+            header('Location: /nutrihelth/public/?action=index&msg=success'); exit;
         }
         $this->view('users/create');
     }
@@ -28,13 +28,13 @@ class UserController {
             if($this->repo->emailExists($email,$id)){ $this->view('users/edit',['error'=>'E-mail já cadastrado em outro usuário.','user'=>$user]); return; }
             $user->name=$name; $user->email=$email; $user->typeUser=$typeUser;
             $this->repo->update($user);
-            header('Location: /nutrihelth/public/?action=index'); exit;
+            header('Location: /nutrihelth/public/?action=index&msg=success'); exit;
         }
         $this->view('users/edit',['user'=>$user]);
     }
     public function delete(): void {
         $id=(int)($_GET['id']??0); if($id>0){ $this->repo->delete($id); }
-        header('Location: /nutrihelth/public/?action=index'); exit;
+        header('Location: /nutrihelth/public/?action=index&msg=deleted'); exit;
     }
     private function view(string $path,array $data=[]): void { extract($data); $base=dirname(__DIR__,2); include $base."/views/{$path}.php"; }
 }
