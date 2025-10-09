@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS gestao_usuarios;
-USE gestao_usuarios;
+CREATE DATABASE IF NOT EXISTS nutrihelth;
+USE nutrihelth;
 
 CREATE TABLE `user` (
   id int not null AUTO_INCREMENT,
