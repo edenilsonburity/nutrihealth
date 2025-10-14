@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>nutrihelth</title>
+  <title>nutrihealth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -74,11 +74,11 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand">
         <i data-lucide="leaf"></i>
-        <span class="label">nutrihelth</span>
+        <span class="label">nutrihealth</span>
         <span class="badge label">v1</span>
       </div>
       <nav class="nav-group">
-        <a class="nav-item <?= ($_GET['action']??'index')==='index'?'active':'' ?>" href="/nutrihelth/public/?action=index"><i data-lucide="users"></i><span class="label">Usuários</span></a>        
+        <a class="nav-item <?= ($_GET['action']??'index')==='index'?'active':'' ?>" href="/nutrihealth/public/?action=index"><i data-lucide="users"></i><span class="label">Usuários</span></a>        
         <a class="nav-item" href="#" onclick="Swal.fire('Em breve','Módulo de relatórios','info')"><i data-lucide="bar-chart-2"></i><span class="label">Relatórios</span></a>
       </nav>
     </aside>
@@ -87,7 +87,7 @@
       <button class="btn" id="btnSidebar" aria-label="Alternar menu"><i data-lucide="menu"></i><span class="label">Menu</span></button>
       <div style="flex:1"></div>
       <button class="btn" id="btnTheme" title="Tema"><i data-lucide="sun"></i></button>
-      <a class="btn btn-primary" href="/nutrihelth/public/?action=create"><i data-lucide="plus"></i> Novo</a>
+      <a class="btn btn-primary" href="/nutrihealth/public/?action=create"><i data-lucide="plus"></i> Novo</a>
     </header>
     <main class="content">
       <div class="page-head"><i data-lucide="layout-grid"></i><div><div class="page-title">Usuários</div><div class="page-sub">Gestão de usuários do sistema</div></div></div>

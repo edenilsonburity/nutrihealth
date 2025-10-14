@@ -27,11 +27,11 @@ Este projeto tem a finalidade de ser aplicado como um projeto de extensão na Cl
 
 ### 1. Instalação
 
-1. Crie uma pasta `nutrihelth` no XAMPP na pasta `C:\xampp\htdocs\`
-2. git clone https://github.com/edenilsonburity/nutrihelth.git
+1. Crie uma pasta `nutrihealth` no XAMPP na pasta `C:\xampp\htdocs\`
+2. git clone https://github.com/edenilsonburity/nutrihealth.git
 3. Inicie Apache e MySQL no XAMPP
 4. Para o banco de dados, no phpMyAdmin, execute `database.sql`
-5. Acesse `http://localhost/nutrihelth/public`
+5. Acesse `http://localhost/nutrihealth/public`
 
 ### 2. Executar a aplicação
 Inicie o servidor Tomcat.
