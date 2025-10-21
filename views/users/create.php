@@ -6,7 +6,7 @@
   <label>Nome<br>
     <input type="text" name="name" required value="<?= htmlspecialchars($old['name'] ?? '') ?>" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elev);color:var(--on-surface)">
   </label><br><br>
-  <label>Email<br>
+  <label>E-mail<br>
     <input type="email" name="email" required value="<?= htmlspecialchars($old['email'] ?? '') ?>" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elev);color:var(--on-surface)">
   </label><br><br>
   <label>Senha<br>
