@@ -29,7 +29,7 @@
 <script>
 function confirmDelete(id) {
   Swal.fire({
-    title: 'Tem certeza?',
+    title: 'Você tem certeza?',
     text: 'Esta ação não poderá ser desfeita!',
     icon: 'warning',
     showCancelButton: true,
