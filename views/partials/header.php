@@ -79,7 +79,7 @@
       </div>
       <nav class="nav-group">
         <a class="nav-item <?= ($_GET['action']??'index')==='index'?'active':'' ?>" href="/nutrihealth/public/?action=index"><i data-lucide="users"></i><span class="label">Usuários</span></a>        
-        <a class="nav-item" href="#" onclick="Swal.fire('Em breve','Módulo de relatórios','info')"><i data-lucide="bar-chart-2"></i><span class="label">Relatórios</span></a>
+        <a class="nav-item" href="#" onclick="Swal.fire('Em breve','Módulo de Relatórios','info')"><i data-lucide="bar-chart-2"></i><span class="label">Relatórios</span></a>
       </nav>
     </aside>
     <div class="overlay" id="overlay"></div>
