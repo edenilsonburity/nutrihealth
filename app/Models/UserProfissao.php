@@ -8,6 +8,6 @@ class UserProfissao {
      $this->codigo=$codigo; $this->descricao_profissao=$descricao_profissao;
     }
     public static function fromArray(array $d): self {
-        return new self($d['id']??null,$d['name'],$d['email'],$d['password']??($d['passwordHash']??''),$d['typeUser']??'U');
+        return new self($d['codigo'],$d['descricao_profissao']);
     }
 }
