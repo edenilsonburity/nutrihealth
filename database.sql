@@ -13,7 +13,7 @@ CREATE TABLE `user` (
 CREATE DATABASE IF NOT EXISTS cadastro;
 USE cadastro;
 
-CREATE TABLE `cadastro` (
+CREATE TABLE `cadastro_profissao` (
   id int not null AUTO_INCREMENT,
   codigo CHAR(7) UNIQUE NOT NULL,
   descricao_profissao VARCHAR(250)  NOT NULL,
