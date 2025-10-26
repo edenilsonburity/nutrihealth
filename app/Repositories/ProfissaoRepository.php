@@ -14,9 +14,8 @@ class ProfissaoRepository // Começa a definição de uma "caixa de ferramentas"
     {
         $st = $this->pdo->query("SELECT id, codigo, descricao_profissao FROM `cadastro_profissao` ORDER BY id DESC");
         // Pede ao banco todos os registros da tabela (colunas id, codigo, descricao_profissao), ordenando por id decrescente.
-        return array_map(fn($r) => new Profissao((int)$r['id'], $r['codigo'], $r['descricao']), $st->fetchAll(PDO::FETCH_ASSOC));
+        return array_map(fn($r) => new Profissao((int)$r['id'], $r['codigo'], $r['descricao']), $st->fetchAll());
         // Transforma cada linha retornada em um objeto Profissao e devolve todas em um array.
-        // fetchAll(PDO::FETCH_ASSOC) pega os dados como arrays associativos.
     }
 
     public function find(int $id): ?Profissao
@@ -24,12 +23,12 @@ class ProfissaoRepository // Começa a definição de uma "caixa de ferramentas"
         $st = $this->pdo->prepare("SELECT id, codigo, descricao FROM `cadastro_profissoes` WHERE id = ?");
         // Prepara uma pergunta ao banco: "me traz a profissão com este id?"
         $st->execute([$id]); // Executa a pergunta substituindo ? pelo $id fornecido
-        $r = $st->fetch(PDO::FETCH_ASSOC); // Pega a primeira linha da resposta como um array associativo
+        $r = $st->fetch(); // Pega a primeira linha da resposta 
         return $r ? new Profissao((int)$r['id'], $r['codigo'], $r['descricao']) : null;
         // Se encontrou, cria e retorna um objeto Profissao com os dados; se não, retorna null (nada)
     }
 
-    public function create(Profissao $p): int
+    public function createProfissoes(Profissao $p): int
     {
         $st = $this->pdo->prepare("INSERT INTO `cadastro_profissoes` (codigo, descricao) VALUES (?,?)");
         // Prepara uma instrução para inserir um novo registro na tabela
@@ -37,14 +36,14 @@ class ProfissaoRepository // Começa a definição de uma "caixa de ferramentas"
         return (int)$this->pdo->lastInsertId(); // Retorna o id do novo registro criado no banco
     }
 
-    public function update(Profissao $p): void
+    public function updateProfissoes(Profissao $p): void
     {
         $st = $this->pdo->prepare("UPDATE `cadastro_profissoes` SET codigo = ?, descricao = ? WHERE id = ?");
         // Prepara a instrução para atualizar os campos de um registro específico
         $st->execute([$p->codigo, $p->descricao, $p->id]); // Executa a atualização usando os valores do objeto
     }
 
-    public function delete(int $id): void
+    public function deleteProfissoes(int $id): void
     {
         $st = $this->pdo->prepare("DELETE FROM `cadastro_profissoes` WHERE id = ?");
         // Prepara uma instrução para apagar um registro pelo id
