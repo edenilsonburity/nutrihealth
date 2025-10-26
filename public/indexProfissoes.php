@@ -1,77 +1,61 @@
 <?php
-namespace App\Repositories; // Diz que este arquivo pertence ao grupo App\Repositories — ajuda a organizar o projeto
+// Início do arquivo PHP
 
-use App\Models\Profissao; // Diz que vamos usar a "receita" Profissao (classe que representa uma profissão)
-use PDO; // Diz que vamos usar a classe PDO para conversar com o banco de dados
+// Front Controller (compatível PHP 7.4+)
+// comentário informativo: este arquivo é o ponto de entrada da aplicação
 
-class ProfissaoRepository // Começa uma "caixa de ferramentas" para ler/escrever profissões no banco
-{
-    public function __construct(private PDO $pdo) {} 
-    // Função que roda quando criamos essa caixa de ferramentas.
-    // Ela recebe a conexão com o banco ($pdo) e guarda para usar nos outros métodos.
+declare(strict_types=1);
+// Diz ao PHP para usar checagem rígida de tipos — se uma função diz que recebe int e você passar string, o PHP reclama.
 
-    public function all(): array
-    {
-        $st = $this->pdo->query("SELECT id, codigo, descricao_profissao FROM `cadastro_profissao` ORDER BY id DESC");
-        // Pergunta ao banco: me traga todas as profissões (colunas id, codigo, descricao_profissao), ordenadas do mais novo para o mais antigo.
+$basePath = dirname(__DIR__);
+// Pega o diretório pai do diretório atual e guarda em $basePath.
+// Se este arquivo está em public/, $basePath será o caminho até a pasta do projeto.
 
-        return array_map(fn($r) => new Profissao((int)$r['id'], $r['codigo'], $r['descricao']), $st->fetchAll(PDO::FETCH_ASSOC));
-        // Para cada linha que o banco retornou, cria um objeto Profissao com esses dados e devolve tudo em um array.
-        // fetchAll(PDO::FETCH_ASSOC) pega todas as linhas como arrays associativos (coluna => valor).
+spl_autoload_register(function ($class) use ($basePath) {
+// Registra uma função que será chamada automaticamente quando uma classe for usada mas ainda não foi carregada.
+// Ou seja: quando você fizer new App\Algo, o PHP tenta carregar o arquivo da classe para você.
+    $prefix = 'App\\'; $baseDir = $basePath . '/app/';
+    // Define que as classes do projeto começam com o namespace "App\" e que os arquivos ficam em /app/ do projeto.
+
+    if (strpos($class, $prefix) === 0) {
+    // Verifica se o nome da classe começa com "App\". Se não começar, esta função ignora.
+        $relative = str_replace('\\', '/', substr($class, strlen($prefix)));
+        // Remove o "App\" do começo do nome da classe e troca as barras de namespace "\" por "/" para formar caminho de arquivo.
+        $file = $baseDir . $relative . '.php';
+        // Monta o caminho completo do arquivo que deveria conter a classe, por exemplo: /caminho/do/projeto/app/Controllers/ProfissaoController.php
+        if (file_exists($file)) { require $file; }
+        // Se o arquivo existir, inclui ele (carrega o código da classe). Se não existir, nada acontece aqui.
     }
+});
 
-    public function find(int $id): ?Profissao
-    {
-        $st = $this->pdo->prepare("SELECT id, codigo, descricao FROM `cadastro_profissoes` WHERE id = ?");
-        // Prepara uma pergunta ao banco: me traga a profissão com este id.
+use App\Controllers\ProfissaoController;
+// Diz que vamos usar a classe ProfissaoController que está no namespace App\Controllers.
+// Isso permite escrever apenas ProfissaoController() mais abaixo sem o caminho completo.
 
-        $st->execute([$id]); // Executa a pergunta substituindo o ? pelo id que veio na chamada.
-        $r = $st->fetch(PDO::FETCH_ASSOC); // Pega a primeira linha da resposta como um array (ou false se não existir).
+$action = $_GET['action'] ?? 'indexProfissoes';
+// Lê a query string 'action' da URL (ex: ?action=editProfissoes).
+// Se não existir, usa 'indexProfissoes' como padrão.
+// Ou seja: define qual ação o usuário quer executar.
 
-        return $r ? new Profissao((int)$r['id'], $r['codigo'], $r['descricao']) : null;
-        // Se encontrou a linha, cria um objeto Profissao com os dados; se não encontrou, retorna null (nada).
-    }
+$controller = new ProfissaoController();
+// Cria uma nova instância (objeto) do controlador de profissão.
+// Esse objeto tem métodos que vão tratar cada ação (index, create, edit, delete).
 
-    public function create(Profissao $p): int
-    {
-        $st = $this->pdo->prepare("INSERT INTO `cadastro_profissoes` (codigo, descricao) VALUES (?,?)");
-        // Prepara uma instrução para inserir uma nova profissão na tabela.
+switch ($action) {
+    case 'indexProfissoes':  $controller->indexProfissoes(); break;
+    // Se $action for 'indexProfissoes', chama o método indexProfissoes() do controlador.
+    // Normalmente esse método lista as profissões.
 
-        $st->execute([$p->codigo, $p->descricao]); // Executa a inserção usando os valores vindos do objeto $p.
-        return (int)$this->pdo->lastInsertId(); // Retorna o id que o banco criou para esse novo registro.
-    }
+    case 'createProfissoes': $controller->createProfissoes(); break;
+    // Se $action for 'createProfissoes', chama createProfissoes() — geralmente mostra ou processa o formulário de criação.
 
-    public function update(Profissao $p): void
-    {
-        $st = $this->pdo->prepare("UPDATE `cadastro_profissoes` SET codigo = ?, descricao = ? WHERE id = ?");
-        // Prepara uma instrução para atualizar os dados de uma profissão já existente (identificada pelo id).
+    case 'editProfissoes':   $controller->editProfissoes(); break;
+    // Se $action for 'editProfissoes', chama editProfissoes() — geralmente mostra ou processa o formulário de edição.
 
-        $st->execute([$p->codigo, $p->descricao, $p->id]); // Executa a atualização com os valores do objeto $p.
-    }
+    case 'deleteProfissoes': $controller->deleteProfissoes(); break;
+    // Se $action for 'deleteProfissoes', chama deleteProfissoes() — geralmente remove um registro.
 
-    public function delete(int $id): void
-    {
-        $st = $this->pdo->prepare("DELETE FROM `cadastro_profissoes` WHERE id = ?");
-        // Prepara uma instrução para apagar a profissão com o id fornecido.
-
-        $st->execute([$id]); // Executa a exclusão no banco.
-    }
-
-    public function codigoExists(string $codigo, ?int $ignoreId = null): bool
-    {
-        if ($ignoreId !== null) {
-            $st = $this->pdo->prepare("SELECT 1 FROM `cadastro_profissoes` WHERE codigo = ? AND id <> ?");
-            $st->execute([$codigo, $ignoreId]);
-            // Aqui checamos se existe outra profissão com o mesmo código, mas ignoramos um id específico.
-            // Isso é útil quando estamos editando: queremos saber se outro registro (diferente do que estamos editando) já usa o código.
-        } else {
-            $st = $this->pdo->prepare("SELECT 1 FROM `cadastro_profissoes` WHERE codigo = ?");
-            $st->execute([$codigo]);
-            // Aqui checamos se existe qualquer profissão com esse código (útil ao criar um novo registro).
-        }
-
-        return (bool)$st->fetchColumn();
-        // fetchColumn traz o primeiro valor da primeira linha encontrada.
-        // Se encontrou algo, convertemos para true (existe); se não, false (não existe).
-    }
+    default: http_response_code(404); echo "Rota não encontrada.";
+    // Se $action não bater com nenhum case acima, retorna erro 404 e mostra "Rota não encontrada."
+    // Ou seja: a URL pediu algo que o sistema não sabe fazer.
 }
