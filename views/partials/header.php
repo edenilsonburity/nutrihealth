@@ -78,7 +78,8 @@
         <span class="badge label">v1</span>
       </div>
       <nav class="nav-group">
-        <a class="nav-item <?= ($_GET['action']??'index')==='index'?'active':'' ?>" href="/nutrihealth/public/?action=index"><i data-lucide="users"></i><span class="label">Usuários</span></a>        
+        <a class="nav-item <?= ($_GET['action']??'index')==='index'?'active':'' ?>" href="/nutrihealth/public/?action=index"><i data-lucide="users"></i><span class="label">Usuários</span></a>   
+        <a class="nav-item <?= (basename($_SERVER['PHP_SELF'])==='indexProfissoes.php')?'active':'' ?>" href="/nutrihealth/public/indexProfissoes.php"><i data-lucide="briefcase"></i><span class="label">Profissões</span></a>     
         <a class="nav-item" href="#" onclick="Swal.fire('Em breve','Módulo de relatórios','info')"><i data-lucide="bar-chart-2"></i><span class="label">Relatórios</span></a>
       </nav>
     </aside>
