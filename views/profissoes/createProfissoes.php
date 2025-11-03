@@ -8,7 +8,7 @@
   </p>
 <?php endif; ?>
 
-<form method="post" action="?action=createProfissao" style="max-width:700px;padding:40px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
+<form method="post" action="?action=createProfissoes" style="max-width:700px;padding:40px;background:var(--surface);border:1px solid var(--border);border-radius:8px">
   
   <label style="display:block;margin-bottom:24px">
     <span style="font-size:18px;font-weight:600;color:#fffff;display:block;margin-bottom:8px">
@@ -30,9 +30,9 @@
     </span>
     <input 
       type="text" 
-      name="descricao" 
+      name="descricao_profissao" 
       required 
-      value="<?= htmlspecialchars($old['descricao'] ?? '') ?>"
+      value="<?= htmlspecialchars($old['descricao_profissao'] ?? '') ?>"
       style="width:100%;padding:12px 16px;border-radius:4px;border:1px solid #ccc;background:var(--surface);color:#fffff;font-size:16px"
     >
   </label>

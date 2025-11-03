@@ -14,38 +14,38 @@ class ProfissaoRepository // Começa a definição de uma "caixa de ferramentas"
     {
         $st = $this->pdo->query("SELECT id, codigo, descricao_profissao FROM `cadastro_profissao` ORDER BY id DESC");
         // Pede ao banco todos os registros da tabela (colunas id, codigo, descricao_profissao), ordenando por id decrescente.
-        return array_map(fn($r) => new Profissao((int)$r['id'], $r['codigo'], $r['descricao']), $st->fetchAll());
+        return array_map(fn($r) => new Profissao((int)$r['id'], $r['codigo'], $r['descricao_profissao']), $st->fetchAll());
         // Transforma cada linha retornada em um objeto Profissao e devolve todas em um array.
     }
 
     public function find(int $id): ?Profissao
     {
-        $st = $this->pdo->prepare("SELECT id, codigo, descricao FROM `cadastro_profissoes` WHERE id = ?");
+        $st = $this->pdo->prepare("SELECT id, codigo, descricao_profissao FROM `cadastro_profissao` WHERE id = ?");
         // Prepara uma pergunta ao banco: "me traz a profissão com este id?"
         $st->execute([$id]); // Executa a pergunta substituindo ? pelo $id fornecido
         $r = $st->fetch(); // Pega a primeira linha da resposta 
-        return $r ? new Profissao((int)$r['id'], $r['codigo'], $r['descricao']) : null;
+        return $r ? new Profissao((int)$r['id'], $r['codigo'], $r['descricao_profissao']) : null;
         // Se encontrou, cria e retorna um objeto Profissao com os dados; se não, retorna null (nada)
     }
 
     public function createProfissoes(Profissao $p): int
     {
-        $st = $this->pdo->prepare("INSERT INTO `cadastro_profissoes` (codigo, descricao) VALUES (?,?)");
+        $st = $this->pdo->prepare("INSERT INTO `cadastro_profissao` (codigo, descricao_profissao) VALUES (?,?)");
         // Prepara uma instrução para inserir um novo registro na tabela
-        $st->execute([$p->codigo, $p->descricao]); // Executa a inserção com os valores do objeto $p
+        $st->execute([$p->codigo, $p->descricao_profissao]); // Executa a inserção com os valores do objeto $p
         return (int)$this->pdo->lastInsertId(); // Retorna o id do novo registro criado no banco
     }
 
     public function updateProfissoes(Profissao $p): void
     {
-        $st = $this->pdo->prepare("UPDATE `cadastro_profissoes` SET codigo = ?, descricao = ? WHERE id = ?");
+        $st = $this->pdo->prepare("UPDATE `cadastro_profissao` SET codigo = ?, descricao_profissao = ? WHERE id = ?");
         // Prepara a instrução para atualizar os campos de um registro específico
-        $st->execute([$p->codigo, $p->descricao, $p->id]); // Executa a atualização usando os valores do objeto
+        $st->execute([$p->codigo, $p->descricao_profissao, $p->id]); // Executa a atualização usando os valores do objeto
     }
 
     public function deleteProfissoes(int $id): void
     {
-        $st = $this->pdo->prepare("DELETE FROM `cadastro_profissoes` WHERE id = ?");
+        $st = $this->pdo->prepare("DELETE FROM `cadastro_profissao` WHERE id = ?");
         // Prepara uma instrução para apagar um registro pelo id
         $st->execute([$id]); // Executa a exclusão
     }
@@ -53,11 +53,11 @@ class ProfissaoRepository // Começa a definição de uma "caixa de ferramentas"
     public function codigoExists(string $codigo, ?int $ignoreId = null): bool
     {
         if ($ignoreId !== null) {
-            $st = $this->pdo->prepare("SELECT 1 FROM `cadastro_profissoes` WHERE codigo = ? AND id <> ?");
+            $st = $this->pdo->prepare("SELECT 1 FROM `cadastro_profissao` WHERE codigo = ? AND id <> ?");
             $st->execute([$codigo, $ignoreId]);
             // Verifica se existe outro registro com o mesmo código, ignorando um id específico (útil ao editar)
         } else {
-            $st = $this->pdo->prepare("SELECT 1 FROM `cadastro_profissoes` WHERE codigo = ?");
+            $st = $this->pdo->prepare("SELECT 1 FROM `cadastro_profissao` WHERE codigo = ?");
             $st->execute([$codigo]);
             // Verifica se existe qualquer registro com esse código (útil ao criar)
         }

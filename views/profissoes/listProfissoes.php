@@ -24,7 +24,7 @@
   <?php foreach ($profissoes as $p): ?>
     <tr>
       <td style="padding:10px;border-bottom:1px solid var(--border)"><?= htmlspecialchars($p->codigo) ?></td>
-      <td style="padding:10px;border-bottom:1px solid var(--border)"><?= htmlspecialchars($p->descricao) ?></td>
+      <td style="padding:10px;border-bottom:1px solid var(--border)"><?= htmlspecialchars($p->descricao_profissao) ?></td>
       <td style="padding:10px;border-bottom:1px solid var(--border)">
         <div style="display:flex;gap:8px">
           <a href="?action=editProfissoes&id=<?= (int)$p->id ?>" class="btn btn-primary"><i data-lucide="edit-3"></i> Editar</a>
