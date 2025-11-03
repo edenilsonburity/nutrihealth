@@ -24,7 +24,7 @@
     mm.addEventListener('change',()=>{if((localStorage.getItem(THEME_KEY)||'system')==='system')applyTheme('system');});
     (function init(){applyTheme(localStorage.getItem(THEME_KEY)||'system');})();
     // SweetAlert via ?msg= e limpar URL
-    (function alertsFromQuery(){const usp=new URLSearchParams(location.search);const msg=usp.get('msg');if(msg==='success'){Swal.fire({icon:'success',title:'Sucesso!',text:'Registro salvo com sucesso.'});}else if(msg==='deleted'){Swal.fire({icon:'info',title:'Excluído!',text:'Registro removido com sucesso.'});}if(msg)history.replaceState(null,'',location.pathname);})(); 
+    (function alertsFromQuery(){const usp=new URLSearchParams(location.search);const msg=usp.get('msg');if(msg==='success'){Swal.fire({icon:'success',title:'Sucesso!',text:'Registro Salvo com Sucesso.'});}else if(msg==='deleted'){Swal.fire({icon:'info',title:'Excluído!',text:'Registro Removido com Sucesso.'});}if(msg)history.replaceState(null,'',location.pathname);})(); 
   </script>
 </body>
 </html>

@@ -28,7 +28,7 @@
       <td style="padding:10px;border-bottom:1px solid var(--border)">
         <div style="display:flex;gap:8px">
           <a href="?action=editProfissoes&id=<?= (int)$p->id ?>" class="btn btn-primary"><i data-lucide="edit-3"></i> Editar</a>
-          <button type="button" class="btn btn-danger" onclick="confirmDelete(<?= (int)$p->id ?>)"><i data-lucide="trash-2"></i> Excluir</button>
+          <button type="button" class="btn btn-danger" onclick="excluirConteudo(<?= (int)$p->id ?>)"><i data-lucide="trash-2"></i> Excluir</button>
         </div>
       </td>
     </tr>
@@ -36,25 +36,21 @@
 </table>
 
 <script>
-function filterTable() {
-  const input = document.getElementById('searchInput');
-  const filter = input.value.toLowerCase();
-  const table = document.getElementById('professionsTable');
-  const rows = table.getElementsByTagName('tr');
-
-  for (let i = 1; i < rows.length; i++) {
-    const cells = rows[i].getElementsByTagName('tr');
-    if (cells.length > 0) {
-      const codigo = cells[0].textContent || cells[0].innerText;
-      const descricao = cells[1].textContent || cells[1].innerText;
-      
-      if (codigo.toLowerCase().indexOf(filter) > -1 || descricao.toLowerCase().indexOf(filter) > -1) {
-        rows[i].style.display = '';
-      } else {
-        rows[i].style.display = 'none';
-      }
+function excluirConteudo(id) {
+  Swal.fire({
+    title: 'Você tem certeza?',
+    text: 'Esta ação não poderá ser desfeita!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Sim, Excluir!',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `?action=deleteProfissoes&id=${id}`;
     }
-  }
+  });
 }
 </script>
 

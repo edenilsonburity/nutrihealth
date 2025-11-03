@@ -29,7 +29,7 @@ class ProfissaoController { // Começa a declaração da "classe" que controla a
 
             $profissao=new Profissao(null,$codigo,$descricao_profissao); // Cria um objeto com os dados informados
             $this->repo->createProfissoes($profissao); // Pede ao repositório para salvar esse objeto no banco
-            header('Location: /nutrihealth/public/?action=indexProfissoes&msg=success'); exit; 
+            header('Location: /nutrihealth/public/indexProfissoes.php?action=indexProfissoes&msg=success'); exit; 
             // Redireciona o usuário para a lista com uma mensagem de sucesso
         }
         $this->view('profissoes/createProfissoes'); // Se não for envio de formulário, apenas mostra o formulário vazio
@@ -56,7 +56,7 @@ class ProfissaoController { // Começa a declaração da "classe" que controla a
             // Atualiza o objeto em memória com os novos valores
 
             $this->repo->updateProfissoes($profissao); // Salva as mudanças no banco
-            header('Location: /nutrihealth/public/?action=indexProfissoes&msg=success'); exit;
+             header('Location: /nutrihealth/public/indexProfissoes.php?action=indexProfissoes&msg=success'); exit;
             // Redireciona de volta para a lista com mensagem de sucesso
         }
         $this->view('profissoes/editProfissoes',['profissao'=>$profissao]); 
@@ -67,7 +67,7 @@ class ProfissaoController { // Começa a declaração da "classe" que controla a
         $id=(int)($_GET['id']??0); if($id>0){ $this->repo->deleteProfissoes($id); } 
         // Pega o id da URL e pede ao repositório para apagar do banco (se id válido)
 
-        header('Location: /nutrihealth/public/?action=indexProfissoes&msg=deleted'); exit;
+         header('Location: /nutrihealth/public/indexProfissoes.php?action=indexProfissoes&msg=deleted'); exit;
         // Redireciona para a lista com mensagem de que foi excluído
     }
 
