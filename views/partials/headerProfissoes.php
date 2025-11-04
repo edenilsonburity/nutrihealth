@@ -49,8 +49,6 @@
     header.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);display:flex;align-items:center;gap:10px;background:var(--surface-elev);border-bottom:1px solid var(--border);padding:0 12px;z-index:50;}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-elev);color:var(--on-surface);cursor:pointer}
     .btn:hover{background:var(--hover)}
-    .btn-primary{background:var(--primary);border-color:transparent;color:var(--on-primary);font-weight:600}
-    .btn-primary:hover{filter:brightness(0.95)}
     .btn-danger{background:var(--danger);border-color:transparent;color:var(--on-danger);font-weight:600}
     .btn-danger:hover{filter:brightness(0.95)}
     main.content{flex:1;width:100%;padding:calc(var(--topbar-h) + 16px) 16px 24px}
@@ -92,7 +90,6 @@
       <button class="btn" id="btnSidebar" aria-label="Alternar menu"><i data-lucide="menu"></i><span class="label">Menu</span></button>
       <div style="flex:1"></div>
       <button class="btn" id="btnTheme" title="Tema"><i data-lucide="sun"></i></button>
-      <a class="btn btn-primary" href="/nutrihealth/public/?action=create"><i data-lucide="plus"></i> Novo</a>
     </header>
     <main class="content">
-      <div class="page-head"><i data-lucide="layout-grid"></i><div><div class="page-title">Usuários</div><div class="page-sub">Gestão de Usuários do Sistema</div></div></div>
+      <div class="page-head"><i data-lucide="layout-grid"></i><div><div class="page-title">Profissões</div><div class="page-sub">Gestão de Profissões do Sistema</div></div></div>

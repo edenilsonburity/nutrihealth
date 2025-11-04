@@ -6,7 +6,7 @@ class Database {
     private string $host='localhost';
     private string $dbname='nutrihealth';
     private string $user='root';
-    private string $port='3306';
+    private string $port='3307';
     private string $pass='';
     private ?PDO $conn=null;
     public function getConnection(): PDO {
