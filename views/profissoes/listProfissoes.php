@@ -36,6 +36,27 @@
 </table>
 
 <script>
+function filterTable() {
+  const input = document.getElementById('searchInput');
+  const filter = input.value.toUpperCase();
+  const table = document.getElementById('professionsTable');
+  const tr = table.getElementsByTagName('tr');
+
+  for (let i = 1; i < tr.length; i++) { // Começa em 1 para pular o cabeçalho (th)
+    let display = 'none';
+    const td = tr[i].getElementsByTagName('td');
+    for (let j = 0; j < td.length; j++) {
+      if (td[j]) {
+        if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+          display = '';
+          break; // Sai do loop das células se encontrar uma correspondência
+        }
+      }
+    }
+    tr[i].style.display = display;
+  }
+}
+
 function excluirConteudo(id) {
   Swal.fire({
     title: 'Você tem certeza?',

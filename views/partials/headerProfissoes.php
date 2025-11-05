@@ -11,7 +11,7 @@
       color-scheme: dark light;
       --bg:#0f172a; --fg:#e5e7eb; --muted:#9ca3af;
       --surface:#0b1020; --surface-elev:#111827; --on-surface:var(--fg);
-      --primary:#22c55e; --on-primary:#052e16;
+      --primary:#22c55e; --on-primary:#ffffff;
       --danger:#dc2626; --on-danger:#ffffff;
       --hover:#1f2937; --border:#1f2937;
       --sidebar-w:260px; --sidebar-w-collapsed:76px; --topbar-h:56px;
@@ -28,7 +28,7 @@
     .theme-light {
       --bg:#f9fafb; --fg:#111827; --muted:#6b7280;
       --surface:#ffffff; --surface-elev:#ffffff; --on-surface:#111827;
-      --primary:#16a34a; --on-primary:#052e16;
+      --primary:#16a34a; --on-primary:#ffffff;
       --danger:#dc2626; --on-danger:#ffffff;
       --hover:#e5e7eb; --border:#d1d5db;
     }
@@ -49,6 +49,8 @@
     header.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);display:flex;align-items:center;gap:10px;background:var(--surface-elev);border-bottom:1px solid var(--border);padding:0 12px;z-index:50;}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-elev);color:var(--on-surface);cursor:pointer}
     .btn:hover{background:var(--hover)}
+    .btn-primary{background:var(--primary);border-color:transparent;color:var(--on-primary);font-weight:600;font-size:15px}
+    .btn-primary:hover{filter:brightness(0.95)}
     .btn-danger{background:var(--danger);border-color:transparent;color:var(--on-danger);font-weight:600}
     .btn-danger:hover{filter:brightness(0.95)}
     main.content{flex:1;width:100%;padding:calc(var(--topbar-h) + 16px) 16px 24px}

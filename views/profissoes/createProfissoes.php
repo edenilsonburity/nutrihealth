@@ -1,6 +1,6 @@
 <?php include __DIR__ . '/../partials/headerProfissoes.php'; ?>
 
-<h2 style="margin-top:8px;margin-bottom:20px">Modo: Nova Profissão</h2>
+<h2 style="margin-top:8px;margin-bottom:20px">Nova Profissão</h2>
 
 <?php if (!empty($error)): ?>
   <p style="color:#d32f2f;font-size:15px;margin-bottom:16px">
