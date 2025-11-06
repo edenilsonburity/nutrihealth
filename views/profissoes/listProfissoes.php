@@ -42,14 +42,14 @@ function filterTable() {
   const table = document.getElementById('professionsTable');
   const tr = table.getElementsByTagName('tr');
 
-  for (let i = 1; i < tr.length; i++) { // Começa em 1 para pular o cabeçalho (th)
+  for (let i = 1; i < tr.length; i++) { 
     let display = 'none';
     const td = tr[i].getElementsByTagName('td');
     for (let j = 0; j < td.length; j++) {
       if (td[j]) {
         if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
           display = '';
-          break; // Sai do loop das células se encontrar uma correspondência
+          break; 
         }
       }
     }
