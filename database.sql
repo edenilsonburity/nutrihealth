@@ -13,6 +13,6 @@ CREATE TABLE `user` (
 CREATE TABLE `cadastro_profissao` (
   id int not null AUTO_INCREMENT,
   codigo CHAR(7) UNIQUE NOT NULL,
-  descricao_profissao VARCHAR(250)  NOT NULL,
+  descricao_profissao VARCHAR(25)  NOT NULL,
   primary key (id) 
 );

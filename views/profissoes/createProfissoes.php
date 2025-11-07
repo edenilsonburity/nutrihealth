@@ -21,7 +21,7 @@
       placeholder="9999-99"
       maxlength="7"
       pattern="\d{4}-\d{2}"
-      title="O código deve seguir o formato 1234-56."
+      title="O código deve seguir o formato 1234-56"
       oninput="formatarCodigo(this)"
       style="width:100%;padding:12px 16px;border-radius:4px;border:1px solid #ccc; background:var(--surface-elev);color:var(--on-surface);font-size:16px"
     >
@@ -35,7 +35,7 @@
       name="descricao_profissao" 
       required 
       value="<?= htmlspecialchars($old['descricao_profissao'] ?? '') ?>"
-      maxlength="250"
+      maxlength="25"
       pattern="[A-Za-zÀ-ú\s]+"
       title="A descrição deve conter apenas letras e ter no máximo 250 caracteres."
       oninput="validarDescricao(this)"

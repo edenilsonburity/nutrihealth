@@ -25,7 +25,7 @@
       name="descricao_profissao" 
       required 
       value="<?= htmlspecialchars($profissao->descricao_profissao) ?>" 
-      maxlength="250"
+      maxlength="25"
       pattern="[\p{L}\s]+"
       title="A descrição deve conter apenas letras e ter no máximo 250 caracteres."
       oninput="validarDescricao(this)"
