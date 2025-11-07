@@ -6,6 +6,7 @@
   <label style="display:block;margin-bottom:24px">
     <span style="font-size:18px;font-weight:600;color:#fffff;display:block;margin-bottom:8px">
       Código da Profissão
+    </span>
     <input 
       type="text" 
       name="codigo" 
@@ -20,6 +21,7 @@
   <label style="display:block;margin-bottom:30px">
     <span style="font-size:18px;font-weight:600;color:#fffff;display:block;margin-bottom:8px">
       Descrição da Profissão
+    </span>
     <input 
       type="text" 
       name="descricao_profissao" 
@@ -27,7 +29,7 @@
       value="<?= htmlspecialchars($profissao->descricao_profissao) ?>" 
       maxlength="25"
       pattern="[\p{L}\s]+"
-      title="A descrição deve conter apenas letras e ter no máximo 250 caracteres."
+      title="A descrição deve conter apenas letras e ter no máximo 25 caracteres."
       oninput="validarDescricao(this)"
       style="width:100%;padding:12px 16px;border-radius:4px;border:1px solid #ccc;background:var(--surface-elev);color:var(--on-surface);font-size:16px">
   </label>
