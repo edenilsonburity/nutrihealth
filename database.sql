@@ -9,3 +9,10 @@ CREATE TABLE `user` (
   typeUser char(1) not null,
   primary key (id)
 );
+
+CREATE TABLE `occupation` (
+  id int not null AUTO_INCREMENT,
+  code CHAR(7) UNIQUE NOT NULL,
+  description_occupation VARCHAR(25)  NOT NULL,
+  primary key (id) 
+);

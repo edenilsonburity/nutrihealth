@@ -16,7 +16,7 @@ class UserController {
             $hash=password_hash($password,PASSWORD_DEFAULT);
             $user=new User(null,$name,$email,$hash,$typeUser);
             $this->repo->create($user);
-            header('Location: /nutrihealth/public/?action=index&msg=success'); exit;
+            header('Location: /nutrihealth/public/?controller=user&action=index&msg=created'); exit;
         }
         $this->view('users/create');
     }
@@ -28,7 +28,7 @@ class UserController {
             if($this->repo->emailExists($email,$id)){ $this->view('users/edit',['error'=>'E-mail já cadastrado em outro usuário.','user'=>$user]); return; }
             $user->name=$name; $user->email=$email; $user->typeUser=$typeUser;
             $this->repo->update($user);
-            header('Location: /nutrihealth/public/?action=index&msg=success'); exit;
+            header('Location: /nutrihealth/public/?controller=user&action=index&msg=updated'); exit;
         }
         $this->view('users/edit',['user'=>$user]);
     }
@@ -37,4 +37,47 @@ class UserController {
         header('Location: /nutrihealth/public/?action=index&msg=deleted'); exit;
     }
     private function view(string $path,array $data=[]): void { extract($data); $base=dirname(__DIR__,2); include $base."/views/{$path}.php"; }
+    public function login(): void
+        {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $email    = trim($_POST['email'] ?? '');
+                $password = (string)($_POST['password'] ?? '');
+
+            if ($email === '' || $password === '') {
+                $this->view('auth/login', ['error' => 'Por favor informe o e-mail e senha.']);
+                return;
+            }
+
+            $user = $this->repo->findByEmail($email);
+            if (!$user || !password_verify($password, $user->passwordHash)) {
+                $this->view('auth/login', ['error' => 'E-mail ou senha inválido.']);
+                return;
+            }
+
+            if (session_status() !== PHP_SESSION_ACTIVE) {
+                session_start();
+            }
+
+            session_regenerate_id(true);
+            $_SESSION['user_id']   = $user->id;
+            $_SESSION['user_name'] = $user->name;
+            $_SESSION['user_type'] = $user->typeUser;
+
+            header('Location: /nutrihealth/public/?controller=user&action=index');
+            exit;
+        }
+
+        $this->view('auth/login');
+    }
+
+    public function logout(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $_SESSION = [];
+        session_destroy();
+        header('Location: /nutrihealth/public/?controller=user&action=login');
+        exit;
+    }
 }
