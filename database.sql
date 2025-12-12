@@ -16,3 +16,18 @@ CREATE TABLE `occupation` (
   description_occupation VARCHAR(25)  NOT NULL,
   primary key (id) 
 );
+
+CREATE TABLE patient (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  name_patient      VARCHAR(150) NOT NULL,
+  cpf               CHAR(11) NOT NULL UNIQUE,
+  birth_date        DATE NULL,
+  phone             VARCHAR(20) NULL,
+  cellphone         VARCHAR(20) NOT NULL,
+  email             VARCHAR(100) NULL,
+  address           VARCHAR(255) NULL,
+  emergency_contact VARCHAR(150) NULL,
+  guardian_name     VARCHAR(150) NULL,
+  status            ENUM('A','I') NOT NULL DEFAULT 'A', -- A = Ativo, I = Inativo
+  notes             TEXT NULL
+);

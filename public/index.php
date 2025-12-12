@@ -20,6 +20,7 @@ spl_autoload_register(function ($class) use ($basePath) {
 
 use App\Controllers\UserController;
 use App\Controllers\OccupationController;
+use App\Controllers\PatientController;
 
 // Controller e action padrão
 $controllerName = $_GET['controller'] ?? 'user';
@@ -46,6 +47,9 @@ switch ($controllerName) {
     case 'occupation':
         $controller = new OccupationController();
         break;
+    case 'patient':
+        $controller = new PatientController();
+        break;        
     default:
         http_response_code(404);
         echo 'Controller não encontrada';

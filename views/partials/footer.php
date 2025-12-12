@@ -19,6 +19,8 @@
   </div>
 </footer>
 
+<script src="https://unpkg.com/imask"></script>
+
 <script>
   // ===== THEME ENGINE (global) =====
   const THEME_KEY = 'nh_theme';
@@ -140,6 +142,24 @@
 
       history.replaceState(null, '', location.pathname);
     })();
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {   
+      // Telefone fixo (formato 10 dígitos)
+      const phoneInput = document.querySelector("input[name='phone']");
+      if (phoneInput) {
+        IMask(phoneInput, {
+              mask: "(00) 0000-0000"
+        });
+      }
+
+      // Celular (formato 11 dígitos com 9)
+      const cellphoneInput = document.querySelector("input[name='cellphone']");
+      if (cellphoneInput) {
+        IMask(cellphoneInput, {
+              mask: "(00) 00000-0000"
+        });
+      }
   });
 </script>
 
