@@ -12,6 +12,10 @@ switch ($currentController) {
         $pageTitle = 'Profissões';
         $pageSub   = 'Gestão de profissões';
         break;
+    case 'patient':
+        $pageTitle = 'Pacientes';
+        $pageSub   = 'Gestão de pacientes';
+        break;        
     case 'user':
     default:
         $pageTitle = 'Usuários';
@@ -22,6 +26,8 @@ switch ($currentController) {
 // Link dinâmico para o botão "Novo"
 if ($currentController === 'occupation') {
     $newLink = '/nutrihealth/public/?controller=occupation&action=create';
+} elseif ($currentController === 'patient') {
+    $newLink = '/nutrihealth/public/?controller=patient&action=create';
 } else {
     $newLink = '/nutrihealth/public/?controller=user&action=create';
 }
@@ -86,9 +92,9 @@ if ($currentController === 'occupation') {
       --surface-elev: #020617;
       --on-surface: #e5e7eb;
       --primary: #22c55e;
-      --on-primary: #052e16;
+      --on-primary: #ecfdf5;   /* texto bem claro sobre o botão verde */
       --danger: #ef4444;
-      --on-danger: #0b1120;
+      --on-danger: #fef2f2;    /* texto claro sobre o botão vermelho */
       --hover: #020617;
       --border: #1f2937;
     }
@@ -143,7 +149,7 @@ if ($currentController === 'occupation') {
       inset: 0 auto 0 0;
       width: var(--sidebar-w);
       background: var(--surface-elev);
-      border-right: 1px solid rgba(148,163,184,.35);
+      border-right: 1px solid rgba(30, 31, 32, 0.35);
       padding: 14px 12px;
       display: flex;
       flex-direction: column;
@@ -287,11 +293,11 @@ if ($currentController === 'occupation') {
     }
     .btn .label { display: inline; }
     .btn i[data-lucide] { width: 16px; height: 16px; }
-    .btn:hover {
+    /* Hover escuro só para botões neutros */
+    .btn:not(.btn-primary):not(.btn-danger):hover {
       background: rgba(15,23,42,1);
       border-color: rgba(148,163,184,.9);
     }
-
     .btn-primary {
       background: linear-gradient(135deg, var(--primary), #22c1c3);
       color: var(--on-primary);
@@ -300,6 +306,7 @@ if ($currentController === 'occupation') {
     }
     .btn-primary:hover {
       transform: translateY(-1px);
+      filter: brightness(1.05);
       box-shadow: 0 18px 40px rgba(34,197,94,.35);
     }
 
@@ -307,6 +314,12 @@ if ($currentController === 'occupation') {
       background: var(--danger);
       color: var(--on-danger);
       border-color: transparent;
+      box-shadow: 0 12px 30px rgba(239,68,68,.35);
+    }
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 18px 40px rgba(239,68,68,.45);
     }
 
     main.content {
@@ -380,6 +393,12 @@ if ($currentController === 'occupation') {
          href="/nutrihealth/public/?controller=user&action=index">
         <i data-lucide="users"></i>
         <span class="label">Usuários</span>
+      </a>
+
+      <a class="nav-item <?= ($currentController === 'patient') ? 'active' : '' ?>"
+        href="/nutrihealth/public/?controller=patient&action=index">
+        <i data-lucide="user-plus"></i>
+        <span class="label">Pacientes</span>
       </a>
 
       <a class="nav-item <?= ($currentController === 'occupation') ? 'active' : '' ?>"
