@@ -63,7 +63,7 @@ class UserController {
             $_SESSION['user_name'] = $user->name;
             $_SESSION['user_type'] = $user->typeUser;
 
-            header('Location: /nutrihealth/public/?controller=user&action=index');
+            header('Location: /nutrihealth/public/?controller=report&action=index');            
             exit;
         }
 

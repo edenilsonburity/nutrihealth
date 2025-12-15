@@ -5,6 +5,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 $userName          = $_SESSION['user_name'] ?? null;
 $currentController = $_GET['controller'] ?? 'user';
+$pageIcon          = 'layout-grid';
 
 // Título e subtítulo dinâmicos da página
 switch ($currentController) {
@@ -15,7 +16,19 @@ switch ($currentController) {
     case 'patient':
         $pageTitle = 'Pacientes';
         $pageSub   = 'Gestão de pacientes';
-        break;        
+        break;
+    case 'report':
+        $pageTitle = 'Relatórios';
+        $pageSub   = 'Análise e estatísticas dos agendamentos';
+        break;
+    case 'appointment':
+        $pageTitle = 'Agenda';
+        $pageSub   = 'Agendamento de pacientes';
+        break;         
+    case 'consultation':
+        $pageTitle = 'Consulta';
+        $pageSub   = 'Gestão das consultas nutricionais';
+        break;                        
     case 'user':
     default:
         $pageTitle = 'Usuários';
@@ -28,6 +41,12 @@ if ($currentController === 'occupation') {
     $newLink = '/nutrihealth/public/?controller=occupation&action=create';
 } elseif ($currentController === 'patient') {
     $newLink = '/nutrihealth/public/?controller=patient&action=create';
+} elseif ($currentController === 'appointment') {
+    $newLink = '/nutrihealth/public/?controller=appointment&action=create';
+} elseif ($currentController === 'consultation') {
+    $newLink = 'disabled';  // Desabilitado, pois a criação de consultas é feita via agendamento
+} elseif ($currentController === 'report') {
+    $newLink = 'disabled';  // Desabilitado, quando está no report
 } else {
     $newLink = '/nutrihealth/public/?controller=user&action=create';
 }
@@ -55,6 +74,8 @@ if ($currentController === 'occupation') {
         setThemeClass(pref);
       }
     })();
+
+    lucide.createIcons();
   </script>
 
   <meta charset="UTF-8" />
@@ -63,7 +84,7 @@ if ($currentController === 'occupation') {
 
   <!-- Ícones e alerts -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
 
   <style>
     :root {
@@ -401,14 +422,22 @@ if ($currentController === 'occupation') {
         <span class="label">Pacientes</span>
       </a>
 
+      <a class="nav-item <?= ($currentController === 'appointment') ? 'active' : '' ?>"
+         href="/nutrihealth/public/?controller=appointment&action=calendar">
+        <i data-lucide="calendar"></i>
+        <span class="label">Agenda</span>
+      </a>
+
+
       <a class="nav-item <?= ($currentController === 'occupation') ? 'active' : '' ?>"
          href="/nutrihealth/public/?controller=occupation&action=index">
         <i data-lucide="briefcase"></i>
         <span class="label">Profissões</span>
       </a>
+      
 
-      <a class="nav-item" href="#"
-         onclick="Swal.fire('Em breve','Módulo de relatórios em desenvolvimento.','info')">
+      <a class="nav-item <?= ($currentController === 'report') ? 'active' : '' ?>"
+         href="/nutrihealth/public/?controller=report&action=index">
         <i data-lucide="bar-chart-2"></i>
         <span class="label">Relatórios</span>
       </a>
@@ -445,8 +474,8 @@ if ($currentController === 'occupation') {
         </span>
       <?php endif; ?>
 
-      <a class="btn btn-primary" href="<?= $newLink ?>" style="margin-left:8px;">
-        <i data-lucide="plus"></i><span class="label">Novo</span>
+      <?php if ($newLink && $newLink !== 'disabled'): ?> <a class="btn btn-primary" href="<?= $newLink ?>" style="margin-left:8px;">
+        <i data-lucide="plus"></i><span class="label">Novo</span> <?php endif; ?>
       </a>
 
       <a class="btn btn-danger" href="/nutrihealth/public/?controller=user&action=logout" style="margin-left:8px;">

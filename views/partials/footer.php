@@ -14,9 +14,6 @@
   <div style="margin-bottom:4px; color:var(--fg); font-weight:500;">
     NutriHealth v1.0 © <?= date('Y') ?>
   </div>
-  <div style="font-size:12px;">
-    Painel administrativo seguro · Versão 1.0
-  </div>
 </footer>
 
 <script src="https://unpkg.com/imask"></script>
@@ -134,6 +131,10 @@
         created:  { icon: 'success', title: 'Registro criado com sucesso!' },
         updated:  { icon: 'success', title: 'Registro atualizado com sucesso!' },
         deleted:  { icon: 'success', title: 'Registro excluído com sucesso!' },
+        consultation_created: {icon: 'success', title: 'Consulta registrada com sucesso!' },
+        appointment_created: {icon: 'success', title: 'Agendamento criado com sucesso!' },
+        ppointment_updated: {icon: 'success', title: 'Agendamento atualizado com sucesso!'},
+        no_consultation: {icon: 'warning', title: 'Nenhuma consulta encontrada para este agendamento.'},
         notfound: { icon: 'warning', title: 'Registro não encontrado.' }
       };
 
