@@ -428,13 +428,16 @@ if ($currentController === 'occupation') {
         <span class="label">Agenda</span>
       </a>
 
-
       <a class="nav-item <?= ($currentController === 'occupation') ? 'active' : '' ?>"
          href="/nutrihealth/public/?controller=occupation&action=index">
         <i data-lucide="briefcase"></i>
         <span class="label">Profissões</span>
       </a>
       
+      <a class="nav-item <?= ($currentController === 'consultation') ? 'active' : '' ?>"
+         href="/nutrihealth/public/?controller=consultation&action=index">
+        <i data-lucide="clipboard-list"></i>
+        <span class="label">Consultas</span>    
 
       <a class="nav-item <?= ($currentController === 'report') ? 'active' : '' ?>"
          href="/nutrihealth/public/?controller=report&action=index">
@@ -446,9 +449,14 @@ if ($currentController === 'occupation') {
     <div class="sidebar-footer">
       <?php if ($userName): ?>
         <div><strong>Sessão ativa</strong><br><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></div>
+        <a href="/nutrihealth/public/?controller=user&action=changePassword&id=<?= (int)$_SESSION['user_id'] ?>"
+        class="nav-item">
+        <i data-lucide="key"></i>
+        <span class="label">Minha senha</span>
+      </a>
       <?php else: ?>
         <div><strong>Sessão convidado</strong><br>Faça login para acessar todos os recursos.</div>
-      <?php endif; ?>
+      <?php endif; ?>      
       <div>NutriHealth &copy; <?= date('Y') ?></div>
     </div>
   </aside>
