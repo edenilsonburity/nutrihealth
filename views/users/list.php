@@ -1,5 +1,11 @@
 <?php include __DIR__ . '/../partials/header.php'; ?>
 
+<?php
+  $loggedId = (int)($_SESSION['user_id'] ?? 0);
+  $isAdmin  = (($_SESSION['user_type'] ?? '') === 'A');
+?>
+
+
 <h2 style="margin-top:8px">Lista de Usuários</h2>
 
 <div style="display:flex;gap:12px;margin-bottom:20px;align-items:stretch;flex-wrap:wrap;">
@@ -31,7 +37,13 @@
       </td>
       <td style="padding:10px;border-bottom:1px solid var(--border);display:flex;gap:8px">
         <a href="?action=edit&id=<?= (int)$u->id ?>" class="btn btn-primary"><i data-lucide="edit-3"></i> Editar</a>
-        <button type="button" class="btn btn-danger" onclick="confirmDelete(<?= (int)$u->id ?>)"><i data-lucide="trash-2"></i> Excluir</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete(<?= (int)$u->id ?>)"><i data-lucide="trash-2"></i> Excluir</button>            
+        <?php if ($isAdmin): ?>
+          <a class="btn"
+          href="/nutrihealth/public/?controller=user&action=changePassword&id=<?= (int)$u->id ?>">
+          <i data-lucide="key"></i> Senha
+          </a>
+        <?php endif; ?>
       </td>
     </tr>
   <?php endforeach; ?>

@@ -135,7 +135,13 @@
         appointment_created: {icon: 'success', title: 'Agendamento criado com sucesso!' },
         ppointment_updated: {icon: 'success', title: 'Agendamento atualizado com sucesso!'},
         no_consultation: {icon: 'warning', title: 'Nenhuma consulta encontrada para este agendamento.'},
-        notfound: { icon: 'warning', title: 'Registro não encontrado.' }
+        notfound: { icon: 'warning', title: 'Registro não encontrado.' },
+        // Upload/Exames
+        upload_ok:   { icon: 'success', title: 'Sucesso', text: 'Arquivo enviado com sucesso.' },
+        upload_fail: { icon: 'error',   title: 'Erro',    text: 'Não foi possível enviar o arquivo. Verifique o formato e o tamanho.' },
+        upload_failed:  {icon: 'error',   title: 'Erro',    text: 'Arquivo não foi selecionado, Verifique!' },
+        delete_ok:   { icon: 'success', title: 'Sucesso', text: 'Arquivo excluído com sucesso.' },
+        delete_fail: { icon: 'error',   title: 'Erro',    text: 'Não foi possível excluir o arquivo.' }
       };
 
       const cfg = map[msg] || { icon: 'info', title: msg };

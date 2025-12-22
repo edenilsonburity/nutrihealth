@@ -80,4 +80,78 @@ class UserController {
         header('Location: /nutrihealth/public/?controller=user&action=login');
         exit;
     }
+
+    public function changePassword(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($id <= 0) {
+            header('Location: /nutrihealth/public/?controller=user&action=index&msg=notfound');
+            exit;
+        }
+
+        // Permissões:
+        // - o usuário pode alterar a própria senha
+        // - admin pode alterar a senha de qualquer usuário
+        $loggedId   = (int)($_SESSION['user_id'] ?? 0);
+        $userType   = $_SESSION['user_type'] ?? null; // ex.: 'A' admin, 'N' nutri, etc.
+        $isAdmin    = ($userType === 'A');
+        $isSelf     = ($loggedId === $id);
+
+        if (!$isSelf && !$isAdmin) {
+            header('Location: /nutrihealth/public/?controller=user&action=index&msg=forbidden');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $currentPassword = (string)($_POST['current_password'] ?? '');
+            $newPassword     = (string)($_POST['new_password'] ?? '');
+            $confirmPassword = (string)($_POST['confirm_password'] ?? '');
+
+            $errors = [];
+
+            // regras de senha (ajuste como quiser)
+            if (strlen($newPassword) < 8) {
+                $errors[] = 'A nova senha deve ter no mínimo 8 caracteres.';
+            }
+            if ($newPassword !== $confirmPassword) {
+                $errors[] = 'Confirmação de senha não confere.';
+            }
+
+            // Se for o próprio usuário (não admin reset), exige senha atual
+            if ($isSelf && !$isAdmin) {
+                $hash = $this->repo->getPasswordHashById($id);
+                if (!$hash || !password_verify($currentPassword, $hash)) {
+                    $errors[] = 'Senha atual inválida.';
+                }
+            }
+
+            if ($errors) {
+                $this->view('users/change_password', [
+                    'error'  => implode(' ', $errors),
+                    'userId' => $id,
+                    'isSelf' => $isSelf,
+                    'isAdmin'=> $isAdmin,
+                ]);
+                return;
+            }
+
+            $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $this->repo->updatePassword($id, $newHash);
+
+            header('Location: /nutrihealth/public/?controller=user&action=index&msg=updated');
+            exit;
+        }
+
+        $this->view('users/change_password', [
+            'userId' => $id,
+            'isSelf' => $isSelf,
+            'isAdmin'=> $isAdmin,
+        ]);
+    }
+
+
 }

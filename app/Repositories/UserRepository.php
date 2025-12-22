@@ -43,4 +43,16 @@ class UserRepository {
         $r = $st->fetch();
         return $r ? new User($r['id'], $r['name'], $r['email'], $r['passwordHash'], $r['typeUser']) : null;
     }
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $st = $this->pdo->prepare("UPDATE `user` SET password = :p WHERE id = :id");
+        $st->execute(['p' => $passwordHash, 'id' => $id]);
+    }
+    public function getPasswordHashById(int $id): ?string
+    {
+        $st = $this->pdo->prepare("SELECT password FROM `user` WHERE id = ?");
+        $st->execute([$id]);
+        $hash = $st->fetchColumn();
+        return $hash ? (string)$hash : null;
+    }
 }
