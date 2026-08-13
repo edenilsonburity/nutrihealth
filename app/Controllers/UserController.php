@@ -16,7 +16,7 @@ class UserController {
             $hash=password_hash($password,PASSWORD_DEFAULT);
             $user=new User(null,$name,$email,$hash,$typeUser);
             $this->repo->create($user);
-            header('Location: /nutrihealth/public/?controller=user&action=index&msg=created'); exit;
+            header('Location: ' . BASE_URL . '/?controller=user&action=index&msg=created'); exit;
         }
         $this->view('users/create');
     }
@@ -28,13 +28,13 @@ class UserController {
             if($this->repo->emailExists($email,$id)){ $this->view('users/edit',['error'=>'E-mail já cadastrado em outro usuário.','user'=>$user]); return; }
             $user->name=$name; $user->email=$email; $user->typeUser=$typeUser;
             $this->repo->update($user);
-            header('Location: /nutrihealth/public/?controller=user&action=index&msg=updated'); exit;
+            header('Location: ' . BASE_URL . '/?controller=user&action=index&msg=updated'); exit;
         }
         $this->view('users/edit',['user'=>$user]);
     }
     public function delete(): void {
         $id=(int)($_GET['id']??0); if($id>0){ $this->repo->delete($id); }
-        header('Location: /nutrihealth/public/?action=index&msg=deleted'); exit;
+        header('Location: ' . BASE_URL . '/?action=index&msg=deleted'); exit;
     }
     private function view(string $path,array $data=[]): void { extract($data); $base=dirname(__DIR__,2); include $base."/views/{$path}.php"; }
     public function login(): void
@@ -63,7 +63,7 @@ class UserController {
             $_SESSION['user_name'] = $user->name;
             $_SESSION['user_type'] = $user->typeUser;
 
-            header('Location: /nutrihealth/public/?controller=report&action=index');            
+            header('Location: ' . BASE_URL . '/?controller=report&action=index');            
             exit;
         }
 
@@ -77,7 +77,7 @@ class UserController {
         }
         $_SESSION = [];
         session_destroy();
-        header('Location: /nutrihealth/public/?controller=user&action=login');
+        header('Location: ' . BASE_URL . '/?controller=user&action=login');
         exit;
     }
 
@@ -89,7 +89,7 @@ class UserController {
 
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if ($id <= 0) {
-            header('Location: /nutrihealth/public/?controller=user&action=index&msg=notfound');
+            header('Location: ' . BASE_URL . '/?controller=user&action=index&msg=notfound');
             exit;
         }
 
@@ -102,7 +102,7 @@ class UserController {
         $isSelf     = ($loggedId === $id);
 
         if (!$isSelf && !$isAdmin) {
-            header('Location: /nutrihealth/public/?controller=user&action=index&msg=forbidden');
+            header('Location: ' . BASE_URL . '/?controller=user&action=index&msg=forbidden');
             exit;
         }
 
@@ -142,7 +142,7 @@ class UserController {
             $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
             $this->repo->updatePassword($id, $newHash);
 
-            header('Location: /nutrihealth/public/?controller=user&action=index&msg=updated');
+            header('Location: ' . BASE_URL . '/?controller=user&action=index&msg=updated');
             exit;
         }
 

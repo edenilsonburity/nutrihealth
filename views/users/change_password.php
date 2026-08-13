@@ -9,7 +9,7 @@
 <?php endif; ?>
 
 <form method="post"
-      action="/nutrihealth/public/?controller=user&action=changePassword&id=<?= (int)$userId ?>"
+      action="<?= BASE_URL ?>/?controller=user&action=changePassword&id=<?= (int)$userId ?>"
       style="max-width:560px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px">
 
   <?php if (!empty($isSelf) && empty($isAdmin)): ?>
@@ -36,7 +36,7 @@
     <i data-lucide="save"></i> Salvar
   </button>
 
-  <a href="/nutrihealth/public/?controller=user&action=index" class="btn" style="margin-left:8px">
+  <a href="<?= BASE_URL ?>/?controller=user&action=index" class="btn" style="margin-left:8px">
     <i data-lucide="arrow-left"></i> Voltar
   </a>
 </form>

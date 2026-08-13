@@ -3,16 +3,20 @@ namespace App\Controllers;
 
 use App\Config\Database;
 use App\Models\Patient;
+use App\Repositories\OccupationRepository;
 use App\Repositories\PatientRepository;
 
 class PatientController
 {
     private PatientRepository $repo;
+    private OccupationRepository $occRepo;
 
     public function __construct()
     {
         $db         = new Database();
-        $this->repo = new PatientRepository($db->getConnection());
+        $pdo        = $db->getConnection();
+        $this->repo    = new PatientRepository($pdo);
+        $this->occRepo = new OccupationRepository($pdo);
     }
 
     public function index(): void
@@ -23,17 +27,24 @@ class PatientController
 
     public function create(): void
     {
+        $occupations = $this->occRepo->all();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'name_patient'      => trim($_POST['name_patient']         ?? ''),
                 'cpf'               => preg_replace('/\D+/', '', $_POST['cpf'] ?? ''),
-                'birth_date'        => $_POST['birth_date']        ?? null,
+                'birth_date'        => (trim($_POST['birth_date'] ?? '') !== '') ? $_POST['birth_date'] : null,
                 'phone'             => trim($_POST['phone']        ?? ''),
                 'cellphone'         => trim($_POST['cellphone']    ?? ''),
                 'email'             => trim($_POST['email']        ?? ''),
                 'address'           => trim($_POST['address']      ?? ''),
                 'emergency_contact' => trim($_POST['emergency_contact'] ?? ''),
                 'guardian_name'     => trim($_POST['guardian_name']    ?? ''),
+                'rg'                => trim($_POST['rg']              ?? ''),
+                'nationality'       => trim($_POST['nationality']     ?? ''),
+                'marital_status'    => trim($_POST['marital_status']  ?? ''),
+                'cep'               => trim($_POST['cep']             ?? ''),
+                'occupation_text'   => trim($_POST['occupation']       ?? ''),
                 'status'            => $_POST['status'] ?? 'A',
                 'notes'             => trim($_POST['notes'] ?? ''),
             ];
@@ -62,31 +73,42 @@ class PatientController
                 $errors[] = 'Celular  é obrigatório.';
             }            
 
+            if ($data['occupation_text'] === '') {
+                $errors[] = 'Profissão é obrigatória.';
+            }
+
             if ($errors) {
                 $this->view('patients/create', [
                     'error' => implode(' ', $errors),
                     'old'   => $data,
+                    'occupations' => $occupations,
                 ]);
                 return;
             }
 
+            // Busca a profissão pelo texto digitado; cria automaticamente se ainda não existir
+            $occupation = $this->occRepo->findOrCreateByDescription($data['occupation_text']);
+            $data['idOccupation'] = $occupation->id;
+
             $patient = Patient::fromArray($data);
             $this->repo->create($patient);
 
-            header('Location: /nutrihealth/public/?controller=patient&action=index&msg=created');
+            header('Location: ' . BASE_URL . '/?controller=patient&action=index&msg=created');
             exit;
         }
 
-        $this->view('patients/create');
+        $this->view('patients/create', ['occupations' => $occupations]);
     }
 
     public function edit(): void
     {
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
+        $occupations = $this->occRepo->all();
+
         $patient = $this->repo->find($id);
         if (!$patient) {
-            header('Location: /nutrihealth/public/?controller=patient&action=index&msg=notfound');
+            header('Location: ' . BASE_URL . '/?controller=patient&action=index&msg=notfound');
             exit;
         }
 
@@ -95,13 +117,18 @@ class PatientController
                 'id'                => $id,
                 'name_patient'      => trim($_POST['name_patient']         ?? ''),
                 'cpf'               => preg_replace('/\D+/', '', $_POST['cpf'] ?? ''),
-                'birth_date'        => $_POST['birth_date']        ?? null,
+                'birth_date'        => (trim($_POST['birth_date'] ?? '') !== '') ? $_POST['birth_date'] : null,
                 'phone'             => trim($_POST['phone']        ?? ''),
                 'cellphone'         => trim($_POST['cellphone']    ?? ''),
                 'email'             => trim($_POST['email']        ?? ''),
                 'address'           => trim($_POST['address']      ?? ''),
                 'emergency_contact' => trim($_POST['emergency_contact'] ?? ''),
                 'guardian_name'     => trim($_POST['guardian_name']    ?? ''),
+                'rg'                => trim($_POST['rg']              ?? ''),
+                'nationality'       => trim($_POST['nationality']     ?? ''),
+                'marital_status'    => trim($_POST['marital_status']  ?? ''),
+                'cep'               => trim($_POST['cep']             ?? ''),
+                'occupation_text'   => trim($_POST['occupation']       ?? ''),
                 'status'            => $_POST['status'] ?? 'A',
                 'notes'             => trim($_POST['notes'] ?? ''),
             ];
@@ -130,23 +157,32 @@ class PatientController
                 $errors[] = 'E-mail inválido.';
             }
 
+            if ($data['occupation_text'] === '') {
+                $errors[] = 'Profissão é obrigatória.';
+            }
+
             if ($errors) {
                 $this->view('patients/edit', [
                     'error'   => implode(' ', $errors),
                     'patient' => $patient,
                     'old'     => $data,
+                    'occupations' => $occupations,
                 ]);
                 return;
             }
 
+            // Busca a profissão pelo texto digitado; cria automaticamente se ainda não existir
+            $occupation = $this->occRepo->findOrCreateByDescription($data['occupation_text']);
+            $data['idOccupation'] = $occupation->id;
+
             $patient = Patient::fromArray($data);
             $this->repo->update($patient);
 
-            header('Location: /nutrihealth/public/?controller=patient&action=index&msg=updated');
+            header('Location: ' . BASE_URL . '/?controller=patient&action=index&msg=updated');
             exit;
         }
 
-        $this->view('patients/edit', ['patient' => $patient]);
+        $this->view('patients/edit', ['patient' => $patient, 'occupations' => $occupations]);
     }
 
     public function delete(): void
@@ -157,7 +193,7 @@ class PatientController
             $this->repo->delete($id);
         }
 
-        header('Location: /nutrihealth/public/?controller=patient&action=index&msg=deleted');
+        header('Location: ' . BASE_URL . '/?controller=patient&action=index&msg=deleted');
         exit;
     }
 

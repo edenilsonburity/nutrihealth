@@ -17,6 +17,9 @@ class ConsultationBodyMeasurements
     public ?float $thighCircCm;
     public ?float $calfCircCm;
     public ?float $bodyFatPercent;
+    public ?float $leanMassPercent;
+    public ?int $metabolicAge;
+    public ?int $visceralFatLevel;
     public ?string $createdAt;
 
     public function __construct(
@@ -34,6 +37,9 @@ class ConsultationBodyMeasurements
         ?float $thighCircCm = null,
         ?float $calfCircCm = null,
         ?float $bodyFatPercent = null,
+        ?float $leanMassPercent = null,
+        ?int $metabolicAge = null,
+        ?int $visceralFatLevel = null,
         ?string $createdAt = null
     ) {
         $this->id              = $id;
@@ -49,8 +55,11 @@ class ConsultationBodyMeasurements
         $this->armCircCm       = $armCircCm;
         $this->thighCircCm     = $thighCircCm;
         $this->calfCircCm      = $calfCircCm;
-        $this->bodyFatPercent  = $bodyFatPercent;
-        $this->createdAt       = $createdAt;
+        $this->bodyFatPercent   = $bodyFatPercent;
+        $this->leanMassPercent  = $leanMassPercent;
+        $this->metabolicAge     = $metabolicAge;
+        $this->visceralFatLevel = $visceralFatLevel;
+        $this->createdAt        = $createdAt;
     }
 
     public static function fromArray(array $d): self
@@ -70,6 +79,9 @@ class ConsultationBodyMeasurements
             isset($d['thigh_circ_cm']) ? (float)$d['thigh_circ_cm'] : null,
             isset($d['calf_circ_cm']) ? (float)$d['calf_circ_cm'] : null,
             isset($d['body_fat_percent']) ? (float)$d['body_fat_percent'] : null,
+            isset($d['lean_mass_percent']) ? (float)$d['lean_mass_percent'] : null,
+            isset($d['metabolic_age']) ? (int)$d['metabolic_age'] : null,
+            isset($d['visceral_fat_level']) ? (int)$d['visceral_fat_level'] : null,
             $d['created_at'] ?? null
         );
     }

@@ -3,21 +3,22 @@ use App\Repositories\ReportRepository;
 
 include __DIR__ . '/../partials/header.php';
 
-$fixedTypes = [
-  'PRIMEIRA_CONSULTA' => 0,
-  'RETORNO' => 0,
-  'AVALIACAO_CORPORAL' => 0,
-  'ORIENTACAO_NUTRICIONAL' => 0,
-];
+$typeLabels = $typeLabels ?? [];
+
+// Zera a contagem para todos os tipos cadastrados (inclui os que ainda não tiveram agendamentos)
+$fixedTypes = array_fill_keys(array_keys($typeLabels), 0);
 
 foreach ($byType as $row) {
   $t = $row['type'] ?? '';
-  if ($t && array_key_exists($t, $fixedTypes)) {
-    $fixedTypes[$t] = (int)$row['total'];
+  if ($t === '') continue;
+  if (!array_key_exists($t, $fixedTypes)) {
+    // Tipo usado em algum agendamento mas não encontrado no cadastro (ex.: removido depois)
+    $fixedTypes[$t] = 0;
   }
+  $fixedTypes[$t] = (int)$row['total'];
 }
 
-$max = max($fixedTypes);
+$max = !empty($fixedTypes) ? max($fixedTypes) : 0;
 $max = $max > 0 ? $max : 1;
 
 function pill_class(string $status): string {
@@ -67,6 +68,14 @@ function pill_class(string $status): string {
     background: var(--primary);
   }
   .bar-val{ width:26px; text-align:right; color:var(--muted); font-weight:700; }
+
+  @media (max-width: 640px) {
+    .grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .bar-label{ width:120px; font-size:.85rem; }
+  }
+  @media (max-width: 420px) {
+    .grid-4 { grid-template-columns: 1fr; }
+  }
 
   table{ width:100%; border-collapse:separate; border-spacing:0; }
   th, td{ padding:12px 10px; border-top:1px solid var(--border); }
@@ -119,7 +128,7 @@ function pill_class(string $status): string {
     <div style="color:var(--muted);margin-top:4px;">Análise e estatísticas dos agendamentos</div>
   </div>
 
-  <a href="/nutrihealth/public/?controller=report&action=exportCsv"
+  <a href="<?= BASE_URL ?>/?controller=report&action=exportCsv"
      style="display:inline-flex;align-items:center;gap:10px;
             padding:10px 14px;border-radius:10px;
             background:var(--primary);color:var(--on-primary);
@@ -182,7 +191,7 @@ function pill_class(string $status): string {
 
   <?php foreach ($fixedTypes as $type => $count): ?>
     <div class="bar-row">
-      <div class="bar-label"><?= htmlspecialchars(ReportRepository::typeLabel($type)) ?></div>
+      <div class="bar-label"><?= htmlspecialchars($typeLabels[$type] ?? $type) ?></div>
       <div class="bar-track">
         <div class="bar-fill" style="width:<?= (int)round(($count/$max)*100) ?>%"></div>
       </div>
@@ -197,6 +206,7 @@ function pill_class(string $status): string {
     Próximos Agendamentos
   </div>
 
+  <div style="overflow-x:auto;">
   <table>
     <thead>
       <tr>
@@ -214,13 +224,14 @@ function pill_class(string $status): string {
           <tr>
             <td style="font-weight:900;"><?= htmlspecialchars($u['patient_name']) ?></td>
             <td><?= date('d/m/Y \à\s H:i', strtotime($u['start_datetime'])) ?></td>
-            <td><?= htmlspecialchars(ReportRepository::typeLabel($u['type'])) ?></td>
+            <td><?= htmlspecialchars($typeLabels[$u['type']] ?? $u['type']) ?></td>
             <td><span class="<?= pill_class($u['status']) ?>"><?= htmlspecialchars(ReportRepository::statusLabel($u['status'])) ?></span></td>
           </tr>
         <?php endforeach; ?>
       <?php endif; ?>
     </tbody>
   </table>
+  </div>
 </div>
 
 <div class="card" style="margin-top:14px;">
@@ -229,6 +240,7 @@ function pill_class(string $status): string {
     Agendamentos Recentes
   </div>
 
+  <div style="overflow-x:auto;">
   <table>
     <thead>
       <tr>
@@ -248,13 +260,14 @@ function pill_class(string $status): string {
             <td style="color:var(--muted);font-weight:800;">#<?= (int)$r['id'] ?></td>
             <td style="font-weight:900;"><?= htmlspecialchars($r['patient_name']) ?></td>
             <td><?= date('d/m/Y \à\s H:i', strtotime($r['start_datetime'])) ?></td>
-            <td><?= htmlspecialchars(ReportRepository::typeLabel($r['type'])) ?></td>
+            <td><?= htmlspecialchars($typeLabels[$r['type']] ?? $r['type']) ?></td>
             <td><span class="<?= pill_class($r['status']) ?>"><?= htmlspecialchars(ReportRepository::statusLabel($r['status'])) ?></span></td>
           </tr>
         <?php endforeach; ?>
       <?php endif; ?>
     </tbody>
   </table>
+  </div>
 </div>
 
 <?php include __DIR__ . '/../partials/footer.php'; ?>

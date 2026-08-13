@@ -2,7 +2,7 @@
 
 <h2 style="margin-top:8px">Consultas</h2>
 
-<form method="get" action="/nutrihealth/public/" style="margin:16px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+<form method="get" action="<?= BASE_URL ?>/" style="margin:16px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:end">
   <input type="hidden" name="controller" value="consultation">
   <input type="hidden" name="action" value="index">
 
@@ -33,10 +33,11 @@
     <select name="type"
             style="padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface-elev);color:var(--fg)">
       <option value="">Todos</option>
-      <option value="PRIMEIRA_CONSULTA"      <?= (($filters['type'] ?? '')==='PRIMEIRA_CONSULTA')?'selected':'' ?>>Primeira consulta</option>
-      <option value="RETORNO"               <?= (($filters['type'] ?? '')==='RETORNO')?'selected':'' ?>>Retorno</option>
-      <option value="AVALIACAO_CORPORAL"    <?= (($filters['type'] ?? '')==='AVALIACAO_CORPORAL')?'selected':'' ?>>Avaliação corporal</option>
-      <option value="ORIENTACAO_NUTRICIONAL"<?= (($filters['type'] ?? '')==='ORIENTACAO_NUTRICIONAL')?'selected':'' ?>>Orientação nutricional</option>
+      <?php foreach (($types ?? []) as $t): ?>
+        <option value="<?= htmlspecialchars($t->code) ?>" <?= (($filters['type'] ?? '')===$t->code)?'selected':'' ?>>
+          <?= htmlspecialchars($t->name) ?>
+        </option>
+      <?php endforeach; ?>
     </select>
   </div>
 
@@ -45,12 +46,13 @@
       <i data-lucide="search"></i> Filtrar
     </button>
 
-    <a href="/nutrihealth/public/?controller=consultation&action=index" class="btn">
+    <a href="<?= BASE_URL ?>/?controller=consultation&action=index" class="btn">
       <i data-lucide="rotate-ccw"></i> Limpar
     </a>
   </div>
 </form>
 
+<div style="overflow-x:auto;">
 <table style="border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--border)">
   <tr style="background:var(--surface-elev)">
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">Data</th>
@@ -82,19 +84,19 @@
         </td>
 
         <td style="padding:10px;border-bottom:1px solid var(--border)">
-          <?= htmlspecialchars($r['type'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+          <?= htmlspecialchars($r['type_name'] ?? $r['type'] ?? '', ENT_QUOTES, 'UTF-8') ?>
         </td>
 
         <td style="padding:10px;border-bottom:1px solid var(--border);display:flex;gap:8px">
           <!-- Reutiliza o MESMO view usado na agenda -->          
           <a class="btn btn-primary"
-            href="/nutrihealth/public/?controller=consultation&action=view&appointment_id=<?= (int)$r['appointment_id'] ?>&from=list">
+            href="<?= BASE_URL ?>/?controller=consultation&action=view&appointment_id=<?= (int)$r['appointment_id'] ?>&from=list">
             <i data-lucide="eye"></i> Visualizar
           </a>
 
           <!-- Nova página: evolução do paciente -->
           <a class="btn"
-            href="/nutrihealth/public/?controller=consultation&action=evolution&patient_id=<?= (int)$r['patient_id'] ?>&from=list">
+            href="<?= BASE_URL ?>/?controller=consultation&action=evolution&patient_id=<?= (int)$r['patient_id'] ?>&from=list">
             <i data-lucide="trending-up"></i> Evolução
           </a>
         </td>
@@ -102,6 +104,7 @@
     <?php endforeach; ?>
   <?php endif; ?>
 </table>
+</div>
 
 <script>
   // garante ícones na tela (se o footer não estiver chamando)

@@ -53,11 +53,23 @@ class ReportRepository
     public function getCountsByType(): array
     {
         return $this->pdo->query("
-            SELECT type, COUNT(*) AS total
-            FROM appointment
-            GROUP BY type
+            SELECT a.type, at.name AS type_name, COUNT(*) AS total
+            FROM appointment a
+            LEFT JOIN appointment_type at ON at.code = a.type
+            GROUP BY a.type, at.name
             ORDER BY total DESC
         ")->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Mapa code => name de TODOS os tipos cadastrados (mesmo os sem nenhum agendamento ainda),
+     * usado para montar o gráfico "Tipos de Consulta" do dashboard de forma dinâmica.
+     */
+    public function getAllTypeLabels(): array
+    {
+        return $this->pdo->query("
+            SELECT code, name FROM appointment_type ORDER BY name ASC
+        ")->fetchAll(PDO::FETCH_KEY_PAIR);
     }
 
     public function getUpcomingAppointments(int $days = 7): array

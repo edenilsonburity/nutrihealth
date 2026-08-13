@@ -15,6 +15,12 @@ class Patient
     public ?string $guardianName;
     public string $status;
     public ?string $notes;
+    public ?string $rg;
+    public ?string $nationality;
+    public ?string $maritalStatus;
+    public ?string $cep;
+    public ?int $occupationId;
+    public ?string $occupationDescription;
 
     public function __construct(
         ?int $id,
@@ -28,7 +34,13 @@ class Patient
         ?string $emergencyContact = null,
         ?string $guardianName = null,
         string $status = 'A',
-        ?string $notes = null
+        ?string $notes = null,
+        ?string $rg = null,
+        ?string $nationality = null,
+        ?string $maritalStatus = null,
+        ?string $cep = null,
+        ?int $occupationId = null,
+        ?string $occupationDescription = null
     ) {
         $this->id               = $id;
         $this->fullName         = $fullName;
@@ -42,6 +54,12 @@ class Patient
         $this->guardianName     = $guardianName;
         $this->status           = $status;
         $this->notes            = $notes;
+        $this->rg               = $rg;
+        $this->nationality      = $nationality;
+        $this->maritalStatus    = $maritalStatus;
+        $this->cep              = $cep;
+        $this->occupationId     = $occupationId;
+        $this->occupationDescription = $occupationDescription;
     }
 
     public static function fromArray(array $d): self
@@ -58,7 +76,13 @@ class Patient
             $d['emergency_contact'] ?? ($d['emergencyContact'] ?? null),
             $d['guardian_name']     ?? ($d['guardianName']     ?? null),
             $d['status']            ?? 'A',
-            $d['notes']             ?? null
+            $d['notes']             ?? null,
+            $d['rg']                ?? null,
+            $d['nationality']       ?? null,
+            $d['marital_status']    ?? ($d['maritalStatus']    ?? null),
+            $d['cep']               ?? null,
+            $d['idOccupation']      ?? ($d['occupationId'] ?? null),
+            $d['occupation_description'] ?? ($d['occupationDescription'] ?? null)
         );
     }
 }

@@ -28,7 +28,19 @@ switch ($currentController) {
     case 'consultation':
         $pageTitle = 'Consulta';
         $pageSub   = 'Gestão das consultas nutricionais';
-        break;                        
+        break;
+    case 'appointmenttype':
+        $pageTitle = 'Tipos de Consulta';
+        $pageSub   = 'Cadastro dos tipos de consulta disponíveis para agendamento';
+        break;
+    case 'servicetype':
+        $pageTitle = 'Serviços/Pacotes';
+        $pageSub   = 'Cadastro de serviços/pacotes contratáveis pelos pacientes';
+        break;
+    case 'contract':
+        $pageTitle = 'Contratos';
+        $pageSub   = 'Contratos de prestação de serviço dos pacientes';
+        break;
     case 'user':
     default:
         $pageTitle = 'Usuários';
@@ -38,17 +50,23 @@ switch ($currentController) {
 
 // Link dinâmico para o botão "Novo"
 if ($currentController === 'occupation') {
-    $newLink = '/nutrihealth/public/?controller=occupation&action=create';
+    $newLink = '/?controller=occupation&action=create';
 } elseif ($currentController === 'patient') {
-    $newLink = '/nutrihealth/public/?controller=patient&action=create';
+    $newLink = '/?controller=patient&action=create';
 } elseif ($currentController === 'appointment') {
-    $newLink = '/nutrihealth/public/?controller=appointment&action=create';
+    $newLink = '/?controller=appointment&action=create';
 } elseif ($currentController === 'consultation') {
     $newLink = 'disabled';  // Desabilitado, pois a criação de consultas é feita via agendamento
+} elseif ($currentController === 'appointmenttype') {
+    $newLink = '/?controller=appointmenttype&action=create';
+} elseif ($currentController === 'servicetype') {
+    $newLink = '/?controller=servicetype&action=create';
+} elseif ($currentController === 'contract') {
+    $newLink = '/?controller=contract&action=create';
 } elseif ($currentController === 'report') {
     $newLink = 'disabled';  // Desabilitado, quando está no report
 } else {
-    $newLink = '/nutrihealth/public/?controller=user&action=create';
+    $newLink = '/?controller=user&action=create';
 }
 ?>
 <!DOCTYPE html>
@@ -79,7 +97,7 @@ if ($currentController === 'occupation') {
   </script>
 
   <meta charset="UTF-8" />
-  <title>NutriHealth</title>
+  <title>nutrihealth</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Ícones e alerts -->
@@ -116,7 +134,7 @@ if ($currentController === 'occupation') {
       --on-primary: #ecfdf5;   /* texto bem claro sobre o botão verde */
       --danger: #ef4444;
       --on-danger: #fef2f2;    /* texto claro sobre o botão vermelho */
-      --hover: #020617;
+      --hover: #1e293b;
       --border: #1f2937;
     }
 
@@ -158,7 +176,8 @@ if ($currentController === 'occupation') {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
     a { color: inherit; text-decoration: none; }
-    i[data-lucide] { width: 18px; height: 18px; display: inline-block; vertical-align: middle; }
+    img { max-width: 100%; height: auto; }
+    i[data-lucide], svg.lucide { width: 18px; height: 18px; display: inline-block; vertical-align: middle; }
 
     .layout {
       display: flex;
@@ -191,7 +210,7 @@ if ($currentController === 'occupation') {
       align-items: center;
       gap: 10px;
       font-weight: 700;
-      color: #e5e7eb;
+      color: var(--fg);
     }
     .sidebar .brand-badge {
       font-size: 11px;
@@ -205,12 +224,13 @@ if ($currentController === 'occupation') {
       font-size: 12px;
       border-radius: 999px;
       padding: 2px 10px;
-      background: rgba(15,23,42,.7);
-      border: 1px solid rgba(148,163,184,.6);
+      background: var(--surface-elev);
+      border: 1px solid var(--border);
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: var(--muted);
+      color: var(--fg);
+      font-weight: 500;
     }
 
     .nav-group {
@@ -259,7 +279,7 @@ if ($currentController === 'occupation') {
       font-size: 12px;
       color: var(--muted);
     }
-    .sidebar-footer strong { color: #e5e7eb; font-size: 13px; }
+    .sidebar-footer strong { color: var(--fg); font-size: 13px; }
 
     .main {
       margin-left: var(--sidebar-w);
@@ -307,17 +327,17 @@ if ($currentController === 'occupation') {
       font-size: 13px;
       padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,.55);
-      background: rgba(15,23,42,.85);
-      color: #e5e7eb;
+      border: 1px solid var(--border);
+      background: var(--surface-elev);
+      color: var(--fg);
       cursor: pointer;
     }
     .btn .label { display: inline; }
-    .btn i[data-lucide] { width: 16px; height: 16px; }
-    /* Hover escuro só para botões neutros */
+    .btn i[data-lucide], .btn svg.lucide { width: 16px; height: 16px; }
+    /* Hover sutil, seguindo o tema, só para botões neutros */
     .btn:not(.btn-primary):not(.btn-danger):hover {
-      background: rgba(15,23,42,1);
-      border-color: rgba(148,163,184,.9);
+      background: var(--hover);
+      border-color: var(--fg);
     }
     .btn-primary {
       background: linear-gradient(135deg, var(--primary), #22c1c3);
@@ -353,7 +373,7 @@ if ($currentController === 'occupation') {
       gap: 12px;
       margin-bottom: 20px;
     }
-    .page-head i[data-lucide] {
+    .page-head i[data-lucide], .page-head svg.lucide {
       width: 28px;
       height: 28px;
       padding: 6px;
@@ -399,7 +419,7 @@ if ($currentController === 'occupation') {
       <div class="brand">
         <i data-lucide="heart-pulse"></i>
         <div>
-          <div>NutriHealth</div>
+          <div>Nutrihealth</div>
           <div class="brand-badge">Painel Admin</div>
         </div>
       </div>
@@ -411,36 +431,55 @@ if ($currentController === 'occupation') {
     <div class="nav-label">Menu</div>
     <nav class="nav-group">
       <a class="nav-item <?= ($currentController === 'user') ? 'active' : '' ?>"
-         href="/nutrihealth/public/?controller=user&action=index">
+         href="<?= BASE_URL ?>/?controller=user&action=index">
         <i data-lucide="users"></i>
         <span class="label">Usuários</span>
       </a>
 
       <a class="nav-item <?= ($currentController === 'patient') ? 'active' : '' ?>"
-        href="/nutrihealth/public/?controller=patient&action=index">
+        href="<?= BASE_URL ?>/?controller=patient&action=index">
         <i data-lucide="user-plus"></i>
         <span class="label">Pacientes</span>
       </a>
 
       <a class="nav-item <?= ($currentController === 'appointment') ? 'active' : '' ?>"
-         href="/nutrihealth/public/?controller=appointment&action=calendar">
+         href="<?= BASE_URL ?>/?controller=appointment&action=calendar">
         <i data-lucide="calendar"></i>
         <span class="label">Agenda</span>
       </a>
 
       <a class="nav-item <?= ($currentController === 'occupation') ? 'active' : '' ?>"
-         href="/nutrihealth/public/?controller=occupation&action=index">
+         href="<?= BASE_URL ?>/?controller=occupation&action=index">
         <i data-lucide="briefcase"></i>
         <span class="label">Profissões</span>
       </a>
       
       <a class="nav-item <?= ($currentController === 'consultation') ? 'active' : '' ?>"
-         href="/nutrihealth/public/?controller=consultation&action=index">
+         href="<?= BASE_URL ?>/?controller=consultation&action=index">
         <i data-lucide="clipboard-list"></i>
-        <span class="label">Consultas</span>    
+        <span class="label">Consultas</span>
+      </a>
+
+      <a class="nav-item <?= ($currentController === 'appointmenttype') ? 'active' : '' ?>"
+         href="<?= BASE_URL ?>/?controller=appointmenttype&action=index">
+        <i data-lucide="tags"></i>
+        <span class="label">Tipos de Consulta</span>
+      </a>
+
+      <a class="nav-item <?= ($currentController === 'servicetype') ? 'active' : '' ?>"
+         href="<?= BASE_URL ?>/?controller=servicetype&action=index">
+        <i data-lucide="package"></i>
+        <span class="label">Tipos de Serviço</span>
+      </a>
+
+      <a class="nav-item <?= ($currentController === 'contract') ? 'active' : '' ?>"
+         href="<?= BASE_URL ?>/?controller=contract&action=index">
+        <i data-lucide="file-signature"></i>
+        <span class="label">Contratos</span>
+      </a>
 
       <a class="nav-item <?= ($currentController === 'report') ? 'active' : '' ?>"
-         href="/nutrihealth/public/?controller=report&action=index">
+         href="<?= BASE_URL ?>/?controller=report&action=index">
         <i data-lucide="bar-chart-2"></i>
         <span class="label">Relatórios</span>
       </a>
@@ -449,7 +488,7 @@ if ($currentController === 'occupation') {
     <div class="sidebar-footer">
       <?php if ($userName): ?>
         <div><strong>Sessão ativa</strong><br><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></div>
-        <a href="/nutrihealth/public/?controller=user&action=changePassword&id=<?= (int)$_SESSION['user_id'] ?>"
+        <a href="<?= BASE_URL ?>/?controller=user&action=changePassword&id=<?= (int)$_SESSION['user_id'] ?>"
         class="nav-item">
         <i data-lucide="key"></i>
         <span class="label">Minha senha</span>
@@ -457,7 +496,7 @@ if ($currentController === 'occupation') {
       <?php else: ?>
         <div><strong>Sessão convidado</strong><br>Faça login para acessar todos os recursos.</div>
       <?php endif; ?>      
-      <div>NutriHealth &copy; <?= date('Y') ?></div>
+      <div>Nutrihealth &copy; <?= date('Y') ?></div>
     </div>
   </aside>
 
@@ -482,11 +521,11 @@ if ($currentController === 'occupation') {
         </span>
       <?php endif; ?>
 
-      <?php if ($newLink && $newLink !== 'disabled'): ?> <a class="btn btn-primary" href="<?= $newLink ?>" style="margin-left:8px;">
+      <?php if ($newLink && $newLink !== 'disabled'): ?> <a class="btn btn-primary" href="<?= BASE_URL . $newLink ?>" style="margin-left:8px;">
         <i data-lucide="plus"></i><span class="label">Novo</span> <?php endif; ?>
       </a>
 
-      <a class="btn btn-danger" href="/nutrihealth/public/?controller=user&action=logout" style="margin-left:8px;">
+      <a class="btn btn-danger" href="<?= BASE_URL ?>/?controller=user&action=logout" style="margin-left:8px;">
         <i data-lucide="log-out"></i><span class="label">Logout</span>
       </a>
     </header>

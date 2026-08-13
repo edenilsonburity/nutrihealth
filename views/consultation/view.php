@@ -7,6 +7,7 @@
 
   <div style="font-size:0.95rem;color:var(--muted);">
     <strong>Paciente:</strong> <?= htmlspecialchars($patient->fullName) ?><br>
+    <strong>Idade na consulta:</strong> <?= $patientAge !== null ? htmlspecialchars((string)$patientAge) . ' anos' : 'não informada' ?><br>
     <strong>Nutricionista:</strong> <?= htmlspecialchars($nutritionist->name) ?><br>
     <strong>Data da consulta:</strong> <?= date('d/m/Y H:i', strtotime($consultation->consultationDate)) ?><br>
   </div>
@@ -21,7 +22,8 @@
 
   <h3>Informações clínicas</h3>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
-    <div><strong>Objetivo:</strong><br><?= nl2br(htmlspecialchars($consultation->goal)) ?></div>
+    <div><strong>Objetivo (Queixa):</strong><br><?= nl2br(htmlspecialchars($consultation->goal ?? '')) ?></div>
+    <div><strong>Meta:</strong><br><?= nl2br(htmlspecialchars($patientMeta ?? 'Nenhuma meta definida na 1ª consulta.')) ?></div>
     <div><strong>Restrições / Intolerâncias:</strong><br><?= nl2br(htmlspecialchars($consultation->dietaryRestrictions)) ?></div>
     <div><strong>Doenças pré-existentes:</strong><br><?= nl2br(htmlspecialchars($consultation->diseases)) ?></div>
     <div><strong>Medicamentos em uso:</strong><br><?= nl2br(htmlspecialchars($consultation->medications)) ?></div>
@@ -47,8 +49,23 @@
       <div><strong>Panturrilha:</strong> <?= htmlspecialchars($measurements->calfCircCm) ?></div>
     </div>
 
-    <h3>% Gordura</h3>
-    <p><?= htmlspecialchars($measurements->bodyFatPercent) ?> %</p>
+    <h3>Composição corporal (bioimpedância)</h3>
+    <?php
+      $hasComposition = $measurements->bodyFatPercent !== null
+        || $measurements->leanMassPercent !== null
+        || $measurements->metabolicAge !== null
+        || $measurements->visceralFatLevel !== null;
+    ?>
+    <?php if ($hasComposition): ?>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+        <div><strong>% Gordura:</strong> <?= $measurements->bodyFatPercent !== null ? htmlspecialchars((string)$measurements->bodyFatPercent) . ' %' : '—' ?></div>
+        <div><strong>% Massa magra:</strong> <?= $measurements->leanMassPercent !== null ? htmlspecialchars((string)$measurements->leanMassPercent) . ' %' : '—' ?></div>
+        <div><strong>Idade metabólica:</strong> <?= $measurements->metabolicAge !== null ? htmlspecialchars((string)$measurements->metabolicAge) . ' anos' : '—' ?></div>
+        <div><strong>Gordura visceral:</strong> <?= $measurements->visceralFatLevel !== null ? htmlspecialchars((string)$measurements->visceralFatLevel) : '—' ?></div>
+      </div>
+    <?php else: ?>
+      <p style="margin:0;color:var(--muted);">Dados de composição corporal não coletados nesta consulta.</p>
+    <?php endif; ?>
   <?php endif; ?>
 
   <h3>Exames anexados</h3>
@@ -79,7 +96,7 @@
   <?php endif; ?>
 
   <form method="post"
-        action="/nutrihealth/public/?controller=consultation&action=uploadExam&appointment_id=<?= (int)$appointment->id ?>&from=<?= urlencode($from ?? 'agenda') ?>"
+        action="<?= BASE_URL ?>/?controller=consultation&action=uploadExam&appointment_id=<?= (int)$appointment->id ?>&from=<?= urlencode($from ?? 'agenda') ?>"
         enctype="multipart/form-data"
         style="display:flex;flex-direction:column;gap:10px;max-width:680px;">
 
@@ -108,7 +125,7 @@
             </span>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-            <a class="btn" href="/nutrihealth/public/?controller=consultation&action=downloadExam&appointment_id=<?= (int)$appointment->id ?>&file=<?= urlencode($f['name']) ?>">
+            <a class="btn" href="<?= BASE_URL ?>/?controller=consultation&action=downloadExam&appointment_id=<?= (int)$appointment->id ?>&file=<?= urlencode($f['name']) ?>">
               <i data-lucide="download"></i> Baixar
             </a>
 
@@ -126,7 +143,7 @@
 
   <script>
     function confirmDeleteExam(fileName) {
-      const url = `/nutrihealth/public/?controller=consultation&action=deleteExam&appointment_id=<?= (int)$appointment->id ?>&from=<?= urlencode($from ?? 'agenda') ?>&file=` + encodeURIComponent(fileName);
+      const url = `<?= BASE_URL ?>/?controller=consultation&action=deleteExam&appointment_id=<?= (int)$appointment->id ?>&from=<?= urlencode($from ?? 'agenda') ?>&file=` + encodeURIComponent(fileName);
 
       if (window.Swal) {
         Swal.fire({
@@ -154,15 +171,15 @@
     $from = $from ?? ($_GET['from'] ?? 'agenda');
 
     if ($from === 'list') {
-        $backUrl  = '/nutrihealth/public/?controller=consultation&action=index';
+        $backUrl  = '/?controller=consultation&action=index';
         $backText = 'Voltar para Consultas';
     } else {
-        $backUrl  = '/nutrihealth/public/?controller=appointment&action=index';
+        $backUrl  = '/?controller=appointment&action=index';
         $backText = 'Voltar para Agenda';
     }
     ?>
 
-    <a href="<?= $backUrl ?>" class="btn">
+    <a href="<?= BASE_URL . $backUrl ?>" class="btn">
       <i data-lucide="arrow-left"></i> <?= $backText ?>
     </a>
 
