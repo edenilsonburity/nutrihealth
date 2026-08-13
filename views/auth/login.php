@@ -8,7 +8,7 @@
   </div>
 <?php endif; ?>
 
-<form method="post" action="/nutrihealth/public/?controller=user&action=login" style="max-width:320px;">
+<form method="post" action="<?= BASE_URL ?>/?controller=user&action=login" style="max-width:320px;">
   <div style="margin-bottom:12px;">
     <label for="email">E-mail</label><br>
     <input type="email" name="email" id="email" required style="width:100%;padding:8px;">

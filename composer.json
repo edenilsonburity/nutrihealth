@@ -1,0 +1,12 @@
+{
+    "name": "nutrihealth/sistema",
+    "description": "Sistema de gestão da clínica — dependências PHP (geração de contratos em Word)",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "phpoffice/phpword": "^1.4"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

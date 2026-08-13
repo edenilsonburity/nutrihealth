@@ -51,7 +51,7 @@ class OccupationController
             $occupation = new Occupation(null, $code, $description);
             $this->repo->create($occupation);
 
-            header('Location: /nutrihealth/public/?controller=occupation&action=index&msg=created');
+            header('Location: ' . BASE_URL . '/?controller=occupation&action=index&msg=created');
             exit;
         }
 
@@ -62,13 +62,13 @@ class OccupationController
     {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
-            header('Location: /nutrihealth/public/?controller=occupation&action=index');
+            header('Location: ' . BASE_URL . '/?controller=occupation&action=index');
             exit;
         }
 
         $occupation = $this->repo->find($id);
         if (!$occupation) {
-            header('Location: /nutrihealth/public/?controller=occupation&action=index&msg=notfound');
+            header('Location: ' . BASE_URL . '/?controller=occupation&action=index&msg=notfound');
             exit;
         }
 
@@ -96,7 +96,7 @@ class OccupationController
             $occupation->description = $description;
             $this->repo->update($occupation);
 
-            header('Location: /nutrihealth/public/?controller=occupation&action=index&msg=updated');
+            header('Location: ' . BASE_URL . '/?controller=occupation&action=index&msg=updated');
             exit;
         }
 
@@ -110,7 +110,7 @@ class OccupationController
             $this->repo->delete($id);
         }
 
-        header('Location: /nutrihealth/public/?controller=occupation&action=index&msg=deleted');
+        header('Location: ' . BASE_URL . '/?controller=occupation&action=index&msg=deleted');
         exit;
     }
 

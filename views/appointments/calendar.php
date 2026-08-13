@@ -62,16 +62,14 @@ foreach ($appointments as $a) {
     $appointmentsByTime[$timeKey][] = $a;
 }
 
-// Helper para label de tipo
-function nh_renderAppointmentTypeLabel(string $type): string
+// Helper para label de tipo (usa o nome cadastrado; cai para o código bruto se não achar)
+function nh_renderAppointmentTypeLabel(array $a, array $typeLabels = []): string
 {
-    return match ($type) {
-        'PRIMEIRA_CONSULTA'      => 'Primeira Consulta',
-        'RETORNO'                => 'Retorno',
-        'AVALIACAO_CORPORAL'     => 'Avaliação Corporal',
-        'ORIENTACAO_NUTRICIONAL' => 'Orientação Nutricional',
-        default                  => $type,
-    };
+    if (!empty($a['type_name'])) {
+        return htmlspecialchars($a['type_name'], ENT_QUOTES, 'UTF-8');
+    }
+    $code = $a['type'] ?? '';
+    return htmlspecialchars($typeLabels[$code] ?? $code, ENT_QUOTES, 'UTF-8');
 }
 
 // Helper para badge de status
@@ -158,7 +156,7 @@ function nh_renderStatusBadge(string $status): string
       Filtrar
     </button>
 
-    <a href="/nutrihealth/public/?controller=appointment&action=calendar"
+    <a href="<?= BASE_URL ?>/?controller=appointment&action=calendar"
        class="btn"
        style="padding:8px 14px;border-radius:999px;border:none;color:var(--primary);font-size:0.9rem;">
       Hoje
@@ -226,7 +224,7 @@ function nh_renderStatusBadge(string $status): string
                       <?= nh_renderStatusBadge($a['status']) ?>
                     </div>
                     <div style="font-size:0.85rem;color:var(--muted);">
-                      <?= nh_renderAppointmentTypeLabel($a['type']) ?>
+                      <?= nh_renderAppointmentTypeLabel($a, $typeLabels ?? []) ?>
                       <?php if (!empty($a['nutritionist_name'])): ?>
                         · Nutri: <?= htmlspecialchars($a['nutritionist_name']) ?>
                       <?php endif; ?>
@@ -239,7 +237,7 @@ function nh_renderStatusBadge(string $status): string
                     ?>
 
                     <a class="appt-btn appt-btn-muted <?= $locked ? 'appt-btn-disabled' : '' ?>"
-                      <?= $locked ? 'aria-disabled="true"' : 'href="/nutrihealth/public/?controller=appointment&action=edit&id='.(int)$a['id'].'"' ?>>
+                      <?= $locked ? 'aria-disabled="true"' : 'href="'.BASE_URL.'/?controller=appointment&action=edit&id='.(int)$a['id'].'"' ?>>
                       Editar
                     </a>
 
@@ -252,12 +250,12 @@ function nh_renderStatusBadge(string $status): string
 
                     <?php if (empty($a['has_consultation'])): ?>
                       <a class="appt-btn appt-btn-primary"
-                        href="/nutrihealth/public/?controller=consultation&action=create&appointment_id=<?= (int)$a['id'] ?>">
+                        href="<?= BASE_URL ?>/?controller=consultation&action=create&appointment_id=<?= (int)$a['id'] ?>">
                         Registrar Consulta
                       </a>
                     <?php else: ?>
                       <a class="appt-btn"
-                        href="/nutrihealth/public/?controller=consultation&action=view&appointment_id=<?= (int)$a['id'] ?>">
+                        href="<?= BASE_URL ?>/?controller=consultation&action=view&appointment_id=<?= (int)$a['id'] ?>">
                         Visualizar Consulta
                       </a>
                     <?php endif; ?>
@@ -289,7 +287,7 @@ function nh_renderStatusBadge(string $status): string
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.href =                    
-          `/nutrihealth/public/?controller=appointment&action=delete&id=${id}`;
+          `<?= BASE_URL ?>/?controller=appointment&action=delete&id=${id}`;
         }
     });
   }

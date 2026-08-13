@@ -5,6 +5,7 @@ use App\Config\Database;
 use App\Models\Consultation;
 use App\Models\ConsultationBodyMeasurements;
 use App\Repositories\AppointmentRepository;
+use App\Repositories\AppointmentTypeRepository;
 use App\Repositories\ConsultationRepository;
 use App\Repositories\ConsultationBodyMeasurementsRepository;
 use App\Repositories\PatientRepository;
@@ -15,6 +16,7 @@ class ConsultationController
     private ConsultationRepository $consultationRepo;
     private ConsultationBodyMeasurementsRepository $measureRepo;
     private AppointmentRepository $appointmentRepo;
+    private AppointmentTypeRepository $appointmentTypeRepo;
     private PatientRepository $patientRepo;
     private UserRepository $userRepo;
 
@@ -26,6 +28,7 @@ class ConsultationController
         $this->consultationRepo = new ConsultationRepository($pdo);
         $this->measureRepo      = new ConsultationBodyMeasurementsRepository($pdo);
         $this->appointmentRepo  = new AppointmentRepository($pdo);
+        $this->appointmentTypeRepo = new AppointmentTypeRepository($pdo);
         $this->patientRepo      = new PatientRepository($pdo);
         $this->userRepo         = new UserRepository($pdo);
     }
@@ -39,13 +42,13 @@ class ConsultationController
     {
         $appointmentId = (int)($_GET['appointment_id'] ?? 0);
         if ($appointmentId <= 0) {
-            header('Location: /nutrihealth/public/?controller=appointment&action=calendar');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=calendar');
             exit;
         }
 
         $appointment = $this->appointmentRepo->find($appointmentId);
         if (!$appointment) {
-            header('Location: /nutrihealth/public/?controller=appointment&action=calendar&msg=appointment_not_found');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=calendar&msg=appointment_not_found');
             exit;
         }
 
@@ -54,12 +57,28 @@ class ConsultationController
             $patient = $this->patientRepo->find($appointment->patientId);
             $nutritionist = $this->userRepo->find($appointment->nutritionistId);
 
+            $context = $this->buildConsultationContext($patient);
+
+            $old = [];
+            // Pré-preenche altura com a última registrada e Objetivo (Queixa) com o da última consulta
+            if ($context['lastConsultation'] !== null) {
+                if ($context['lastConsultation']->heightM !== null) {
+                    $old['height_m'] = str_replace('.', ',', (string)$context['lastConsultation']->heightM);
+                }
+                if ($context['lastConsultation']->goal !== null) {
+                    $old['goal'] = $context['lastConsultation']->goal;
+                }
+            }
+
             $this->renderView('consultation/create', [
                 'appointment' => $appointment,
                 'patient' => $patient,
                 'nutritionist' => $nutritionist,
-                'old' => [],
+                'old' => $old,
                 'errors' => [],
+                'patientAge' => $context['patientAge'],
+                'isFirstConsultation' => $context['isFirstConsultation'],
+                'patientMeta' => $context['patientMeta'],
             ]);
             return;
         }
@@ -73,6 +92,7 @@ class ConsultationController
                 'height_m'             => str_replace(',', '.', $_POST['height_m'] ?? ''),
                 'activity_level'       => $_POST['activity_level'] ?? null,
                 'goal'                 => trim($_POST['goal'] ?? ''),
+                'meta'                 => trim($_POST['meta'] ?? ''),
                 'dietary_restrictions' => trim($_POST['dietary_restrictions'] ?? ''),
                 'diseases'             => trim($_POST['diseases'] ?? ''),
                 'medications'          => trim($_POST['medications'] ?? ''),
@@ -93,6 +113,11 @@ class ConsultationController
                 'thigh_circ_cm'  => str_replace(',', '.', $_POST['thigh_circ_cm'] ?? ''),
                 'calf_circ_cm'   => str_replace(',', '.', $_POST['calf_circ_cm'] ?? ''),
                 'body_fat_percent' => str_replace(',', '.', $_POST['body_fat_percent'] ?? ''),
+
+                // Composição corporal (bioimpedância) — coleta opcional
+                'lean_mass_percent'  => str_replace(',', '.', $_POST['lean_mass_percent'] ?? ''),
+                'metabolic_age'      => trim($_POST['metabolic_age'] ?? ''),
+                'visceral_fat_level' => trim($_POST['visceral_fat_level'] ?? ''),
             ];
 
             $errors = [];
@@ -104,6 +129,15 @@ class ConsultationController
             if ($data['height_m'] !== '' && !is_numeric($data['height_m'])) {
                 $errors[] = 'Altura deve ser numérica.';
             }
+            if ($data['lean_mass_percent'] !== '' && !is_numeric($data['lean_mass_percent'])) {
+                $errors[] = '% de massa magra deve ser numérico.';
+            }
+            if ($data['metabolic_age'] !== '' && !ctype_digit($data['metabolic_age'])) {
+                $errors[] = 'Idade metabólica deve ser um número inteiro.';
+            }
+            if ($data['visceral_fat_level'] !== '' && !ctype_digit($data['visceral_fat_level'])) {
+                $errors[] = 'Gordura visceral deve ser um número inteiro.';
+            }
 
             $weight = $data['weight_kg'] !== '' ? (float)$data['weight_kg'] : null;
             $height = $data['height_m'] !== '' ? (float)$data['height_m'] : null;
@@ -113,6 +147,8 @@ class ConsultationController
                 $bmi = $weight / ($height * $height);
             }
 
+            $context = $this->buildConsultationContext($patient);
+
             if (!empty($errors)) {
                 $this->renderview('consultation/create', [
                     'appointment'  => $appointment,
@@ -120,9 +156,16 @@ class ConsultationController
                     'nutritionist' => $nutritionist,
                     'errors'       => $errors,
                     'old'          => $data,
+                    'patientAge'   => $context['patientAge'],
+                    'isFirstConsultation' => $context['isFirstConsultation'],
+                    'patientMeta'  => $context['patientMeta'],
                 ]);
                 return;
             }
+
+            // "Meta" só é definida (e editável) na 1ª consulta do paciente; nas seguintes,
+            // é apenas exibida como referência (não duplicamos o valor a cada consulta).
+            $metaToSave = $context['isFirstConsultation'] ? ($data['meta'] ?: null) : null;
 
             $consultation = new Consultation(
                 id: null,
@@ -133,6 +176,7 @@ class ConsultationController
                 bmi: $bmi,
                 activityLevel: $data['activity_level'] ?: null,
                 goal: $data['goal'] ?: null,
+                meta: $metaToSave,
                 dietaryRestrictions: $data['dietary_restrictions'] ?: null,
                 diseases: $data['diseases'] ?: null,
                 medications: $data['medications'] ?: null,
@@ -155,7 +199,10 @@ class ConsultationController
                 armCircCm: $data['arm_circ_cm'] !== '' ? (float)$data['arm_circ_cm'] : null,
                 thighCircCm: $data['thigh_circ_cm'] !== '' ? (float)$data['thigh_circ_cm'] : null,
                 calfCircCm: $data['calf_circ_cm'] !== '' ? (float)$data['calf_circ_cm'] : null,
-                bodyFatPercent: $data['body_fat_percent'] !== '' ? (float)$data['body_fat_percent'] : null
+                bodyFatPercent: $data['body_fat_percent'] !== '' ? (float)$data['body_fat_percent'] : null,
+                leanMassPercent: $data['lean_mass_percent'] !== '' ? (float)$data['lean_mass_percent'] : null,
+                metabolicAge: $data['metabolic_age'] !== '' ? (int)$data['metabolic_age'] : null,
+                visceralFatLevel: $data['visceral_fat_level'] !== '' ? (int)$data['visceral_fat_level'] : null
             );
 
             $this->measureRepo->create($measure);
@@ -164,17 +211,9 @@ class ConsultationController
             $appointment->status = 'CONCLUIDO';
             $this->appointmentRepo->update($appointment);
 
-            header('Location: /nutrihealth/public/?controller=appointment&action=calendar&msg=consultation_created');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=calendar&msg=consultation_created');
             exit;
         }
-
-        $this->view('consultation/create', [
-            'appointment'  => $appointment,
-            'patient'      => $patient,
-            'nutritionist' => $nutritionist,
-            'old'          => [],
-            'errors'       => [],
-        ]);
     }
      
     
@@ -183,6 +222,51 @@ class ConsultationController
         extract($data);
         $base = dirname(__DIR__, 2);
         include $base . "/views/{$path}.php";
+    }
+
+    /**
+     * Calcula a idade (anos completos) a partir da data de nascimento,
+     * na data de referência informada (por padrão, hoje).
+     */
+    private function calculateAge(?string $birthDate, ?string $atDate = null): ?int
+    {
+        if (empty($birthDate)) {
+            return null;
+        }
+        try {
+            $bd  = new \DateTime($birthDate);
+            $ref = $atDate ? new \DateTime($atDate) : new \DateTime('today');
+            return $bd->diff($ref)->y;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Monta o contexto usado ao registrar uma nova consulta:
+     * - idade atual do paciente
+     * - se esta será a 1ª consulta do paciente
+     * - a "meta" definida na 1ª consulta (para exibir como referência)
+     * - a última consulta registrada (para trazer altura e Objetivo/Queixa anteriores)
+     */
+    private function buildConsultationContext($patient): array
+    {
+        $previousConsultations = $patient
+            ? $this->consultationRepo->findAllByPatientId((int)$patient->id)
+            : [];
+
+        $isFirstConsultation = empty($previousConsultations);
+        $firstConsultation   = $previousConsultations[0] ?? null;
+        $lastConsultation     = !empty($previousConsultations)
+            ? $previousConsultations[count($previousConsultations) - 1]
+            : null;
+
+        return [
+            'patientAge'          => $patient ? $this->calculateAge($patient->birthDate) : null,
+            'isFirstConsultation' => $isFirstConsultation,
+            'patientMeta'         => $firstConsultation->meta ?? null,
+            'lastConsultation'    => $lastConsultation,
+        ];
     }
     
     public function index(): void
@@ -220,7 +304,8 @@ class ConsultationController
                 'patient_name' => $patientName,
                 'type'         => $type
             ],
-            'isNutri'     => ($userType === 'N')
+            'isNutri'     => ($userType === 'N'),
+            'types'       => $this->appointmentTypeRepo->all(),
         ]);
     }
 
@@ -232,14 +317,14 @@ class ConsultationController
         $from = $_GET['from'] ?? 'agenda';
 
         if ($appointmentId <= 0) {
-            header("Location: /nutrihealth/public/?controller=appointment&action=calendar");
+            header("Location: /?controller=appointment&action=calendar");
             exit;
         }
 
         $consultation = $this->consultationRepo->findByAppointmentId($appointmentId);
 
         if (!$consultation) {
-            header("Location: /nutrihealth/public/?controller=appointment&action=calendar&msg=no_consultation");
+            header("Location: /?controller=appointment&action=calendar&msg=no_consultation");
             exit;
         }
 
@@ -247,6 +332,20 @@ class ConsultationController
         $appointment  = $this->appointmentRepo->find($appointmentId);
         $patient      = $this->patientRepo->find($appointment->patientId);
         $nutritionist = $this->userRepo->find($appointment->nutritionistId);
+
+        // Idade do paciente na data desta consulta (não a idade "hoje")
+        $patientAgeAtConsultation = $patient
+            ? $this->calculateAge($patient->birthDate, $consultation->consultationDate)
+            : null;
+
+        // A "meta" é definida apenas na 1ª consulta; aqui buscamos ela para mostrar
+        // como referência em qualquer consulta posterior também.
+        $patientMeta = $consultation->meta;
+        if ($patientMeta === null && $patient) {
+            $allConsultations = $this->consultationRepo->findAllByPatientId((int)$patient->id);
+            $firstConsultation = $allConsultations[0] ?? null;
+            $patientMeta = $firstConsultation->meta ?? null;
+        }
 
         // Arquivos de exames anexados (armazenados no servidor)
         $examFiles = $this->listExamFiles((int)$consultation->id);
@@ -259,6 +358,8 @@ class ConsultationController
             'appointment'  => $appointment,
             'examFiles'    => $examFiles,
             'from'         => $from,
+            'patientAge'   => $patientAgeAtConsultation,
+            'patientMeta'  => $patientMeta,
         ]);
     }
 
@@ -278,7 +379,7 @@ class ConsultationController
         $from = $_GET['from'] ?? 'list';
 
         if ($patientId <= 0) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=index&msg=invalid');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=index&msg=invalid');
             exit;
         }
 
@@ -288,7 +389,7 @@ class ConsultationController
 
         $patient = $this->patientRepo->find($patientId);
         if (!$patient) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=index&msg=notfound');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=index&msg=notfound');
             exit;
         }
 
@@ -315,6 +416,9 @@ class ConsultationController
             'weight_kg' => [],
             'bmi' => [],
             'body_fat_percent' => [],
+            'lean_mass_percent' => [],
+            'metabolic_age' => [],
+            'visceral_fat_level' => [],
 
             // Dobras
             'triceps_mm' => [],
@@ -362,13 +466,13 @@ class ConsultationController
         $appointmentId = (int)($_GET['appointment_id'] ?? 0);
         $from = $_GET['from'] ?? 'agenda';
         if ($appointmentId <= 0) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=index&msg=invalid');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=index&msg=invalid');
             exit;
         }
 
         $appointment = $this->appointmentRepo->find($appointmentId);
         if (!$appointment) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=index&msg=appointment_not_found');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=index&msg=appointment_not_found');
             exit;
         }
 
@@ -376,23 +480,23 @@ class ConsultationController
         $userType = $_SESSION['user_type'] ?? null;
         $userId   = (int)($_SESSION['user_id'] ?? 0);
         if ($userType === 'N' && $userId > 0 && $appointment->nutritionistId !== $userId) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=forbidden');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=forbidden');
             exit;
         }
 
         $consultation = $this->consultationRepo->findByAppointmentId($appointmentId);
         if (!$consultation) {
-            header('Location: /nutrihealth/public/?controller=appointment&action=calendar&msg=no_consultation');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=calendar&msg=no_consultation');
             exit;
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from));
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from));
             exit;
         }
 
         if (empty($_FILES['exam_files'])) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=upload_empty');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=upload_empty');
             exit;
         }
 
@@ -401,7 +505,7 @@ class ConsultationController
 
         $destDir = $this->getExamDir((int)$consultation->id);
         if (!is_dir($destDir) && !mkdir($destDir, 0775, true) && !is_dir($destDir)) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=upload_dir_error');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=upload_dir_error');
             exit;
         }
 
@@ -444,7 +548,7 @@ class ConsultationController
         }
 
         $msg = ($saved > 0) ? 'upload_ok' : 'upload_failed';
-        header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=' . $msg);
+        header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=' . $msg);
         exit;
     }
 
@@ -522,13 +626,13 @@ class ConsultationController
         $file = (string)($_GET['file'] ?? '');
 
         if ($appointmentId <= 0 || $file === '') {
-            header('Location: /nutrihealth/public/?controller=consultation&action=index&msg=invalid');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=index&msg=invalid');
             exit;
         }
 
         $appointment = $this->appointmentRepo->find($appointmentId);
         if (!$appointment) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=index&msg=appointment_not_found');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=index&msg=appointment_not_found');
             exit;
         }
 
@@ -536,13 +640,13 @@ class ConsultationController
         $userType = $_SESSION['user_type'] ?? null;
         $userId   = (int)($_SESSION['user_id'] ?? 0);
         if ($userType === 'N' && $userId > 0 && $appointment->nutritionistId !== $userId) {
-            header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=forbidden');
+            header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=forbidden');
             exit;
         }
 
         $consultation = $this->consultationRepo->findByAppointmentId($appointmentId);
         if (!$consultation) {
-            header('Location: /nutrihealth/public/?controller=appointment&action=calendar&msg=no_consultation');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=calendar&msg=no_consultation');
             exit;
         }
 
@@ -567,7 +671,7 @@ class ConsultationController
         }
 
         $msg = $ok ? 'delete_ok' : 'delete_failed';
-        header('Location: /nutrihealth/public/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=' . $msg);
+        header('Location: ' . BASE_URL . '/?controller=consultation&action=view&appointment_id=' . $appointmentId . '&from=' . urlencode($from) . '&msg=' . $msg);
         exit;
     }
 

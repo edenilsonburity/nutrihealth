@@ -29,18 +29,21 @@ class ReportController
         $byType   = $this->repo->getCountsByType();
         $upcoming = $this->repo->getUpcomingAppointments(7);
         $recent   = $this->repo->getRecentAppointments(10);
+        $typeLabels = $this->repo->getAllTypeLabels();
 
         $this->render('reports/dashboard', [
-            'summary'  => $summary,
-            'byType'   => $byType,
-            'upcoming' => $upcoming,
-            'recent'   => $recent,
+            'summary'    => $summary,
+            'byType'     => $byType,
+            'upcoming'   => $upcoming,
+            'recent'     => $recent,
+            'typeLabels' => $typeLabels,
         ]);
     }
 
     public function exportCsv(): void
     {
         $rows = $this->repo->getAppointmentsForCsv();
+        $typeLabels = $this->repo->getAllTypeLabels();
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="relatorio_agendamentos.csv"');
@@ -56,7 +59,7 @@ class ReportController
                 $r['nutritionist_name'],
                 date('d/m/Y H:i', strtotime($r['start_datetime'])),
                 $r['end_datetime'] ? date('d/m/Y H:i', strtotime($r['end_datetime'])) : '',
-                ReportRepository::typeLabel($r['type']),
+                $typeLabels[$r['type']] ?? $r['type'],
                 ReportRepository::statusLabel($r['status']),
             ]);
         }

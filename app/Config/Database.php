@@ -5,12 +5,22 @@ use PDO;
 use PDOException;
 
 class Database {
-    private string $host   = 'localhost';
-    private string $dbname = 'nutrihealth';
-    private string $user   = 'root';
-    private string $port   = '3306';
-    private string $pass   = '';
-    private ?PDO $conn     = null;
+    private string $host;
+    private string $dbname;
+    private string $user;
+    private string $port;
+    private string $pass;
+    private ?PDO $conn = null;
+
+    public function __construct() {
+        // Em produ��o (Render), essas vari�veis v�m do ambiente do servi�o.
+        // Localmente (XAMPP), caem nos valores padr�o de sempre.
+        $this->host   = getenv('DB_HOST')   ?: 'localhost';
+        $this->dbname = getenv('DB_NAME')   ?: 'nutrihealth';
+        $this->user   = getenv('DB_USER')   ?: 'root';
+        $this->port   = getenv('DB_PORT')   ?: '3307';
+        $this->pass   = getenv('DB_PASS')   ?: '';
+    }
 
     public function getConnection(): PDO {
         if ($this->conn === null) {

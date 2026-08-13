@@ -9,7 +9,7 @@
 <?php endif; ?>
 
 <form method="post"
-      action="/nutrihealth/public/?controller=occupation&action=edit&id=<?= (int)$occupation->id; ?>"
+      action="<?= BASE_URL ?>/?controller=occupation&action=edit&id=<?= (int)$occupation->id; ?>"
       style="max-width:520px;padding:20px;margin-top:10px;
              background:var(--surface);border:1px solid var(--border);border-radius:12px">
 
@@ -49,7 +49,7 @@
   </label>
 
   <button type="submit" class="btn btn-primary">Salvar</button>
-  <a href="/nutrihealth/public/?controller=occupation&action=index" class="btn" style="margin-left:8px">
+  <a href="<?= BASE_URL ?>/?controller=occupation&action=index" class="btn" style="margin-left:8px">
     Voltar
   </a>
 </form>

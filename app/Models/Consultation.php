@@ -11,6 +11,7 @@ class Consultation
     public ?float $bmi;
     public ?string $activityLevel;
     public ?string $goal;
+    public ?string $meta;
     public ?string $dietaryRestrictions;
     public ?string $diseases;
     public ?string $medications;
@@ -27,6 +28,7 @@ class Consultation
         ?float $bmi = null,
         ?string $activityLevel = null,
         ?string $goal = null,
+        ?string $meta = null,
         ?string $dietaryRestrictions = null,
         ?string $diseases = null,
         ?string $medications = null,
@@ -42,6 +44,7 @@ class Consultation
         $this->bmi                 = $bmi;
         $this->activityLevel       = $activityLevel;
         $this->goal                = $goal;
+        $this->meta                = $meta;
         $this->dietaryRestrictions = $dietaryRestrictions;
         $this->diseases            = $diseases;
         $this->medications         = $medications;
@@ -61,6 +64,7 @@ class Consultation
             isset($d['bmi']) ? (float)$d['bmi'] : null,
             $d['activity_level'] ?? null,
             $d['goal'] ?? null,
+            $d['meta'] ?? null,
             $d['dietary_restrictions'] ?? null,
             $d['diseases'] ?? null,
             $d['medications'] ?? null,
@@ -81,6 +85,7 @@ class Consultation
             'bmi'                  => $this->bmi,
             'activity_level'       => $this->activityLevel,
             'goal'                 => $this->goal,
+            'meta'                 => $this->meta,
             'dietary_restrictions' => $this->dietaryRestrictions,
             'diseases'             => $this->diseases,
             'medications'          => $this->medications,

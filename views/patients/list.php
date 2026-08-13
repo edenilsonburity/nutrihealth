@@ -13,10 +13,12 @@
   >
 </div>
 
+<div style="overflow-x:auto;">
 <table id="patientsTable" style="border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--border)">
   <tr style="background:var(--surface-elev);color:var(--fg);">
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">ID</th>
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">Nome do Paciente</th>
+    <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">Profissão</th>
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">Celular</th>
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">Status</th>
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">Ações</th>
@@ -25,12 +27,13 @@
     <tr>
       <td style="padding:10px;border-bottom:1px solid var(--border)"><?= (int)$p->id ?></td>
       <td style="padding:10px;border-bottom:1px solid var(--border)"><?= htmlspecialchars($p->fullName, ENT_QUOTES, 'UTF-8') ?></td>
+      <td style="padding:10px;border-bottom:1px solid var(--border)"><?= htmlspecialchars($p->occupationDescription ?? '', ENT_QUOTES, 'UTF-8') ?></td>
       <td style="padding:10px;border-bottom:1px solid var(--border)"><?= htmlspecialchars($p->cellphone ?? '', ENT_QUOTES, 'UTF-8') ?></td>
       <td style="padding:10px;border-bottom:1px solid var(--border)">
         <?= $p->status === 'A' ? 'Ativo' : 'Inativo' ?>
       </td>
       <td style="padding:10px;border-bottom:1px solid var(--border);display:flex;gap:8px">
-        <a href="/nutrihealth/public/?controller=patient&action=edit&id=<?= (int)$p->id ?>"
+        <a href="<?= BASE_URL ?>/?controller=patient&action=edit&id=<?= (int)$p->id ?>"
           class="btn btn-primary">
           <i data-lucide="edit-3"></i> Editar
         </a>
@@ -46,6 +49,7 @@
     </tr>
   <?php endforeach; ?>
 </table>
+</div>
 
 <script>
   function confirmDelete(id) {
@@ -61,7 +65,7 @@
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.href =          
-          `/nutrihealth/public/?controller=patient&action=delete&id=${id}`;
+          `<?= BASE_URL ?>/?controller=patient&action=delete&id=${id}`;
         }
     });
   }
@@ -86,9 +90,9 @@
     // pega todas as linhas de dados (ignora o cabeçalho)
     const rows = table.getElementsByTagName('tr');
 
-    // índices das colunas: 0 = ID, 1 = Nome, 2 = Celular
+    // índices das colunas: 0 = ID, 1 = Nome, 3 = Celular
     const colName      = 1;
-    const colCellphone = 2;  
+    const colCellphone = 3;  
 
     for (let i = 1; i < rows.length; i++) { // começa em 1 para pular o header
       const cells = rows[i].getElementsByTagName('td');

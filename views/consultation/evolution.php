@@ -56,12 +56,12 @@
     <?php
       $from = $from ?? 'list';
       $backUrl  = ($from === 'agenda')
-        ? '/nutrihealth/public/?controller=appointment&action=index'
-        : '/nutrihealth/public/?controller=consultation&action=index';
+        ? '/?controller=appointment&action=index'
+        : '/?controller=consultation&action=index';
       $backText = ($from === 'agenda') ? 'Voltar para Agenda' : 'Voltar para Consultas';
     ?>
 
-    <a class="btn" href="<?= $backUrl ?>">
+    <a class="btn" href="<?= BASE_URL . $backUrl ?>">
       <i data-lucide="arrow-left"></i> <?= $backText ?>
     </a>
 
@@ -90,8 +90,21 @@
     </div>
 
     <div class="chart-card">
-      <h3 class="chart-title">Gordura corporal (%)</h3>
-      <div class="chart-box"><canvas id="chartBodyFat"></canvas></div>
+      <h3 class="chart-title">Composição corporal (%)</h3>
+      <div class="chart-box"><canvas id="chartBodyComposition"></canvas></div>
+      <div style="color:var(--muted);font-size:13px;margin-top:8px">
+        Depende de balança/aparelho de bioimpedância; consultas sem essa coleta aparecem como espaço vazio no gráfico (a linha ignora esses pontos).
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title">Idade metabólica (anos)</h3>
+      <div class="chart-box"><canvas id="chartMetabolicAge"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="chart-title">Gordura visceral (nível)</h3>
+      <div class="chart-box"><canvas id="chartVisceralFat"></canvas></div>
     </div>
 
     <div class="chart-card">
@@ -174,8 +187,8 @@
       }
     ], '');
 
-    // Gordura corporal
-    makeLineChart('chartBodyFat', [
+    // Composição corporal: % gordura e % massa magra compartilham a mesma unidade (%)
+    makeLineChart('chartBodyComposition', [
       {
         label: '% Gordura',
         data: series.body_fat_percent,
@@ -183,8 +196,40 @@
         backgroundColor: colors[3],
         tension: 0.25,
         spanGaps: true
+      },
+      {
+        label: '% Massa magra',
+        data: series.lean_mass_percent,
+        borderColor: colors[0],
+        backgroundColor: colors[0],
+        tension: 0.25,
+        spanGaps: true
       }
     ], '%');
+
+    // Idade metabólica
+    makeLineChart('chartMetabolicAge', [
+      {
+        label: 'Idade metabólica',
+        data: series.metabolic_age,
+        borderColor: colors[4],
+        backgroundColor: colors[4],
+        tension: 0.25,
+        spanGaps: true
+      }
+    ], 'anos');
+
+    // Gordura visceral
+    makeLineChart('chartVisceralFat', [
+      {
+        label: 'Gordura visceral',
+        data: series.visceral_fat_level,
+        borderColor: colors[6],
+        backgroundColor: colors[6],
+        tension: 0.25,
+        spanGaps: true
+      }
+    ], 'nível');
 
     // Dobras
     const foldsKeys = [

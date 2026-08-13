@@ -12,7 +12,7 @@
     backdrop-filter:blur(10px);
     margin-top:20px;">
   <div style="margin-bottom:4px; color:var(--fg); font-weight:500;">
-    NutriHealth v1.0 © <?= date('Y') ?>
+    Nutrihealth v1.0 © <?= date('Y') ?>
   </div>
 </footer>
 

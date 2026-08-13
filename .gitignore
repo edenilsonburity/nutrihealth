@@ -1,1 +1,8 @@
-storage/
+storage/exams/*
+!storage/exams/.gitkeep
+*.bak
+*.zip
+vendor/
+composer.phar
+composer.bat
+composer

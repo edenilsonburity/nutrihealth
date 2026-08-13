@@ -8,14 +8,19 @@ class PatientRepository
 {
     public function __construct(private PDO $pdo) {}
 
+    private const BASE_SELECT = "
+        SELECT p.id, p.name_patient, p.cpf, p.birth_date, p.phone, p.cellphone, p.email, p.address,
+               p.emergency_contact, p.guardian_name, p.status, p.notes,
+               p.rg, p.nationality, p.marital_status, p.cep,
+               p.idOccupation,
+               o.description_occupation AS occupation_description
+        FROM patient p
+        LEFT JOIN occupation o ON o.id = p.idOccupation
+    ";
+
     public function all(): array
     {
-        $st = $this->pdo->query(
-            "SELECT id, name_patient, cpf, birth_date, phone, cellphone, email, address,
-                    emergency_contact, guardian_name, status, notes
-             FROM patient
-             ORDER BY name_patient ASC"
-        );
+        $st = $this->pdo->query(self::BASE_SELECT . " ORDER BY p.name_patient ASC");
         $rows = $st->fetchAll();
 
         return array_map(fn($r) => Patient::fromArray($r), $rows);
@@ -23,12 +28,7 @@ class PatientRepository
 
     public function find(int $id): ?Patient
     {
-        $st = $this->pdo->prepare(
-            "SELECT id, name_patient, cpf, birth_date, phone, cellphone, email, address,
-                    emergency_contact, guardian_name, status, notes
-             FROM patient
-             WHERE id = ?"
-        );
+        $st = $this->pdo->prepare(self::BASE_SELECT . " WHERE p.id = ?");
         $st->execute([$id]);
         $row = $st->fetch();
 
@@ -40,8 +40,9 @@ class PatientRepository
         $st = $this->pdo->prepare(
             "INSERT INTO patient
              (name_patient, cpf, birth_date, phone, cellphone, email, address,
-              emergency_contact, guardian_name, status, notes)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+              emergency_contact, guardian_name, status, notes,
+              rg, nationality, marital_status, cep, idOccupation)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         );
 
         $st->execute([
@@ -56,6 +57,11 @@ class PatientRepository
             $p->guardianName,
             $p->status,
             $p->notes,
+            $p->rg,
+            $p->nationality,
+            $p->maritalStatus,
+            $p->cep,
+            $p->occupationId,
         ]);
 
         return (int)$this->pdo->lastInsertId();
@@ -75,7 +81,12 @@ class PatientRepository
                emergency_contact = ?,
                guardian_name     = ?,
                status            = ?,
-               notes             = ?
+               notes             = ?,
+               rg                = ?,
+               nationality       = ?,
+               marital_status    = ?,
+               cep               = ?,
+               idOccupation      = ?
              WHERE id = ?"
         );
 
@@ -91,6 +102,11 @@ class PatientRepository
             $p->guardianName,
             $p->status,
             $p->notes,
+            $p->rg,
+            $p->nationality,
+            $p->maritalStatus,
+            $p->cep,
+            $p->occupationId,
             $p->id,
         ]);
     }

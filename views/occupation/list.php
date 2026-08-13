@@ -13,6 +13,7 @@
   >
 </div>
 
+<div style="overflow-x:auto;">
 <table id="occupationTable" style="border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--border)">
   <tr style="background:var(--surface-elev)">
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">ID</th>
@@ -36,7 +37,7 @@
       </td>
 
       <td style="padding:10px;border-bottom:1px solid var(--border);display:flex;gap:8px">
-        <a href="/nutrihealth/public/?controller=occupation&action=edit&id=<?= (int)$o->id ?>"
+        <a href="<?= BASE_URL ?>/?controller=occupation&action=edit&id=<?= (int)$o->id ?>"
            class="btn btn-primary">
           <i data-lucide="edit-3"></i> Editar
         </a>
@@ -51,6 +52,7 @@
   <?php endforeach; ?>
 
 </table>
+</div>
 
 <script>
   function confirmDelete(id) {
@@ -66,7 +68,7 @@
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.href =
-          `/nutrihealth/public/?controller=occupation&action=delete&id=${id}`;
+          `<?= BASE_URL ?>/?controller=occupation&action=delete&id=${id}`;
       }
     });
   }

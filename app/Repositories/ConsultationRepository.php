@@ -30,11 +30,12 @@ class ConsultationRepository
             bmi,
             activity_level,
             goal,
+            meta,
             dietary_restrictions,
             diseases,
             medications,
             notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $stmt->execute([
@@ -45,6 +46,7 @@ class ConsultationRepository
         $consultation->bmi,
         $consultation->activityLevel,
         $consultation->goal,
+        $consultation->meta,
         $consultation->dietaryRestrictions,
         $consultation->diseases,
         $consultation->medications,
@@ -52,6 +54,27 @@ class ConsultationRepository
         ]);
 
         return (int)$this->pdo->lastInsertId();
+    }
+
+    /**
+     * Retorna todas as consultas de um paciente (ordenadas por data, mais antiga primeiro).
+     * Usado para: detectar se é a 1ª consulta do paciente, trazer a "meta" definida
+     * na 1ª consulta, e trazer o "Objetivo (Queixa)" e a altura da última consulta.
+     */
+    public function findAllByPatientId(int $patientId): array
+    {
+        $sql = "
+            SELECT c.*
+            FROM consultation c
+            JOIN appointment a ON a.id = c.appointment_id
+            WHERE a.patient_id = ?
+            ORDER BY c.consultation_date ASC, c.id ASC
+        ";
+        $st = $this->pdo->prepare($sql);
+        $st->execute([$patientId]);
+        $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(fn($r) => Consultation::fromArray($r), $rows);
     }
 
     public function searchWithDetails(
@@ -69,6 +92,7 @@ class ConsultationRepository
                 a.id              AS appointment_id,
                 a.start_datetime,
                 a.type,
+                at.name           AS type_name,
                 a.status,
                 p.id              AS patient_id,
                 p.name_patient    AS patient_name,
@@ -78,6 +102,7 @@ class ConsultationRepository
             JOIN appointment a ON a.id = c.appointment_id
             JOIN patient p     ON p.id = a.patient_id
             JOIN `user` u      ON u.id = a.nutritionist_id
+            LEFT JOIN appointment_type at ON at.code = a.type
             WHERE 1=1
         ";
 
@@ -135,6 +160,9 @@ class ConsultationRepository
                 c.weight_kg,
                 c.bmi,
                 bm.body_fat_percent,
+                bm.lean_mass_percent,
+                bm.metabolic_age,
+                bm.visceral_fat_level,
 
                 bm.triceps_mm,
                 bm.subscapular_mm,

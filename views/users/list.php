@@ -19,6 +19,7 @@
   >
 </div>
 
+<div style="overflow-x:auto;">
 <table id="usersTable" style="border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--border)">
   <tr style="background:var(--surface-elev)">
     <th style="padding:10px;border-bottom:1px solid var(--border);text-align:left">ID</th>
@@ -40,7 +41,7 @@
         <button type="button" class="btn btn-danger" onclick="confirmDelete(<?= (int)$u->id ?>)"><i data-lucide="trash-2"></i> Excluir</button>            
         <?php if ($isAdmin): ?>
           <a class="btn"
-          href="/nutrihealth/public/?controller=user&action=changePassword&id=<?= (int)$u->id ?>">
+          href="<?= BASE_URL ?>/?controller=user&action=changePassword&id=<?= (int)$u->id ?>">
           <i data-lucide="key"></i> Senha
           </a>
         <?php endif; ?>
@@ -48,6 +49,7 @@
     </tr>
   <?php endforeach; ?>
 </table>
+</div>
 
 <script>
   function confirmDelete(id) {

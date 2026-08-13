@@ -14,8 +14,9 @@ class ConsultationBodyMeasurementsRepository
             "INSERT INTO consultation_body_measurements
              (consultation_id, triceps_mm, subscapular_mm, suprailiac_mm,
               abdominal_mm, thigh_mm, calf_mm, waist_circ_cm, hip_circ_cm,
-              arm_circ_cm, thigh_circ_cm, calf_circ_cm, body_fat_percent)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+              arm_circ_cm, thigh_circ_cm, calf_circ_cm, body_fat_percent,
+              lean_mass_percent, metabolic_age, visceral_fat_level)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         );
 
         $st->execute([
@@ -32,6 +33,9 @@ class ConsultationBodyMeasurementsRepository
             $m->thighCircCm,
             $m->calfCircCm,
             $m->bodyFatPercent,
+            $m->leanMassPercent,
+            $m->metabolicAge,
+            $m->visceralFatLevel,
         ]);
 
         return (int)$this->pdo->lastInsertId();
@@ -66,13 +70,15 @@ class ConsultationBodyMeasurementsRepository
                 UPDATE consultation_body_measurements
                 SET triceps_mm = ?, subscapular_mm = ?, suprailiac_mm = ?, abdominal_mm = ?,
                     thigh_mm = ?, calf_mm = ?, waist_circ_cm = ?, hip_circ_cm = ?,
-                    arm_circ_cm = ?, thigh_circ_cm = ?, calf_circ_cm = ?, body_fat_percent = ?
+                    arm_circ_cm = ?, thigh_circ_cm = ?, calf_circ_cm = ?, body_fat_percent = ?,
+                    lean_mass_percent = ?, metabolic_age = ?, visceral_fat_level = ?
                 WHERE id = ?
             ";
             $params = [
                 $m->tricepsMm, $m->subscapularMm, $m->suprailiacMm, $m->abdominalMm,
                 $m->thighMm, $m->calfMm, $m->waistCircCm, $m->hipCircCm,
                 $m->armCircCm, $m->thighCircCm, $m->calfCircCm, $m->bodyFatPercent,
+                $m->leanMassPercent, $m->metabolicAge, $m->visceralFatLevel,
                 $m->id
             ];
         } else {
@@ -80,13 +86,14 @@ class ConsultationBodyMeasurementsRepository
                 INSERT INTO consultation_body_measurements 
                     (consultation_id, triceps_mm, subscapular_mm, suprailiac_mm, abdominal_mm,
                      thigh_mm, calf_mm, waist_circ_cm, hip_circ_cm, arm_circ_cm, thigh_circ_cm,
-                     calf_circ_cm, body_fat_percent)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     calf_circ_cm, body_fat_percent, lean_mass_percent, metabolic_age, visceral_fat_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ";
             $params = [
                 $m->consultationId, $m->tricepsMm, $m->subscapularMm, $m->suprailiacMm, $m->abdominalMm,
                 $m->thighMm, $m->calfMm, $m->waistCircCm, $m->hipCircCm, $m->armCircCm,
-                $m->thighCircCm, $m->calfCircCm, $m->bodyFatPercent
+                $m->thighCircCm, $m->calfCircCm, $m->bodyFatPercent,
+                $m->leanMassPercent, $m->metabolicAge, $m->visceralFatLevel
             ];
         }
 

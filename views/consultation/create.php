@@ -17,6 +17,7 @@ function old_val(array $old, string $key, string $default = ''): string {
 <div class="card" style="margin-top:8px;">
   <div style="margin-bottom:12px;font-size:0.9rem;color:var(--muted);">
     <strong>Paciente:</strong> <?= htmlspecialchars($patient->fullName) ?> ·
+    <strong>Idade:</strong> <?= $patientAge !== null ? htmlspecialchars((string)$patientAge) . ' anos' : 'não informada (sem data de nascimento cadastrada)' ?> ·
     <strong>Nutricionista:</strong> <?= htmlspecialchars($nutritionist->name) ?> ·
     <strong>Data/Hora agendada:</strong>
     <?= (new DateTime($appointment->startDatetime))->format('d/m/Y H:i') ?>
@@ -66,6 +67,9 @@ function old_val(array $old, string $key, string $default = ''): string {
     <div>
       <label for="height_m" style="display:block;font-size:0.9rem;color:var(--muted);margin-bottom:4px;">
         Altura (m)
+        <?php if (!empty($old['height_m'])): ?>
+          <span style="font-size:0.78rem;">(trazida da última consulta — confira/ajuste se mudou)</span>
+        <?php endif; ?>
       </label>
       <input
         type="text"
@@ -137,11 +141,34 @@ function old_val(array $old, string $key, string $default = ''): string {
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
         <div>
           <label for="goal" style="display:block;font-size:0.9rem;color:var(--muted);margin-bottom:4px;">
-            Objetivo da consulta
+            Objetivo (Queixa)
+            <?php if (!empty($old['goal'])): ?>
+              <span style="font-size:0.78rem;">(trazido da última consulta — confira/ajuste)</span>
+            <?php endif; ?>
           </label>
           <textarea id="goal" name="goal" rows="2"
+                    placeholder="O que o paciente relatou nesta consulta"
                     style="width:100%;padding:10px 12px;border-radius:6px;
                            border:1px solid var(--border);background:var(--surface);color:var(--fg);resize:vertical;"><?= old_val($old, 'goal') ?></textarea>
+        </div>
+
+        <div>
+          <label for="meta" style="display:block;font-size:0.9rem;color:var(--muted);margin-bottom:4px;">
+            Meta
+            <?php if (empty($isFirstConsultation)): ?>
+              <span style="font-size:0.78rem;">(definida na 1ª consulta — somente leitura)</span>
+            <?php endif; ?>
+          </label>
+          <?php if (!empty($isFirstConsultation)): ?>
+            <textarea id="meta" name="meta" rows="2"
+                      placeholder="Ex.: Perder 5kg em 3 meses, melhorar exames, ganho de massa magra..."
+                      style="width:100%;padding:10px 12px;border-radius:6px;
+                             border:1px solid var(--border);background:var(--surface);color:var(--fg);resize:vertical;"><?= old_val($old, 'meta') ?></textarea>
+          <?php else: ?>
+            <textarea id="meta" rows="2" readonly
+                      style="width:100%;padding:10px 12px;border-radius:6px;
+                             border:1px solid var(--border);background:var(--surface-elev);color:var(--fg);opacity:0.8;resize:vertical;"><?= htmlspecialchars($patientMeta ?? 'Nenhuma meta definida na 1ª consulta.') ?></textarea>
+          <?php endif; ?>
         </div>
 
         <div>
@@ -247,26 +274,80 @@ function old_val(array $old, string $key, string $default = ''): string {
             <?php endforeach; ?>
           </div>
 
-          <div style="margin-top:10px;">
-            <label for="body_fat_percent" style="display:block;font-size:0.85rem;color:var(--muted);margin-bottom:4px;">
-              % de gordura (estimado)
-            </label>
-            <input
-              type="text"
-              id="body_fat_percent"
-              name="body_fat_percent"
-              value="<?= old_val($old, 'body_fat_percent') ?>"
-              placeholder="Ex.: 18,5"
-              style="width:180px;padding:8px 10px;border-radius:6px;
-                     border:1px solid var(--border);background:var(--surface);color:var(--fg);font-size:0.9rem;"
-            >
+          <h4 style="margin:14px 0 6px 0;font-size:0.95rem;">Composição corporal (bioimpedância, se disponível)</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;">
+            <div>
+              <label for="body_fat_percent" style="display:block;font-size:0.85rem;color:var(--muted);margin-bottom:4px;">
+                % de gordura
+              </label>
+              <input
+                type="text"
+                id="body_fat_percent"
+                name="body_fat_percent"
+                value="<?= old_val($old, 'body_fat_percent') ?>"
+                placeholder="Ex.: 18,5"
+                style="width:100%;padding:8px 10px;border-radius:6px;
+                       border:1px solid var(--border);background:var(--surface);color:var(--fg);font-size:0.9rem;"
+              >
+            </div>
+
+            <div>
+              <label for="lean_mass_percent" style="display:block;font-size:0.85rem;color:var(--muted);margin-bottom:4px;">
+                % de massa magra
+              </label>
+              <input
+                type="text"
+                id="lean_mass_percent"
+                name="lean_mass_percent"
+                value="<?= old_val($old, 'lean_mass_percent') ?>"
+                placeholder="Ex.: 68,2"
+                style="width:100%;padding:8px 10px;border-radius:6px;
+                       border:1px solid var(--border);background:var(--surface);color:var(--fg);font-size:0.9rem;"
+              >
+            </div>
+
+            <div>
+              <label for="metabolic_age" style="display:block;font-size:0.85rem;color:var(--muted);margin-bottom:4px;">
+                Idade metabólica (anos)
+              </label>
+              <input
+                type="text"
+                inputmode="numeric"
+                id="metabolic_age"
+                name="metabolic_age"
+                value="<?= old_val($old, 'metabolic_age') ?>"
+                placeholder="Ex.: 32"
+                style="width:100%;padding:8px 10px;border-radius:6px;
+                       border:1px solid var(--border);background:var(--surface);color:var(--fg);font-size:0.9rem;"
+              >
+            </div>
+
+            <div>
+              <label for="visceral_fat_level" style="display:block;font-size:0.85rem;color:var(--muted);margin-bottom:4px;">
+                Gordura visceral (nível)
+              </label>
+              <input
+                type="text"
+                inputmode="numeric"
+                id="visceral_fat_level"
+                name="visceral_fat_level"
+                value="<?= old_val($old, 'visceral_fat_level') ?>"
+                placeholder="Ex.: 8"
+                style="width:100%;padding:8px 10px;border-radius:6px;
+                       border:1px solid var(--border);background:var(--surface);color:var(--fg);font-size:0.9rem;"
+              >
+            </div>
           </div>
+          <p style="margin-top:8px;font-size:0.8rem;color:var(--muted);">
+            Estes campos dependem de balança/aparelho de bioimpedância e nem sempre estarão disponíveis.
+            Deixe em branco quando não coletados — os gráficos de evolução ignoram consultas sem esse dado.
+          </p>
         </div>
 
         <!-- Imagem de referência -->
         <div style="flex:1;min-width:220px;text-align:center;">
           <img
-            src="/nutrihealth/public/img/body_reference.png"
+            src="<?= BASE_URL ?>/img/body_reference.png"
             alt="Referência para dobras e circunferências"
             style="max-width:260px;width:100%;height:auto;opacity:0.9;border-radius:12px;
                    background:var(--surface);border:1px solid var(--border);padding:8px;"
@@ -280,7 +361,7 @@ function old_val(array $old, string $key, string $default = ''): string {
     </section>
 
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
-      <a href="/nutrihealth/public/?controller=appointment&action=calendar"
+      <a href="<?= BASE_URL ?>/?controller=appointment&action=calendar"
          class="btn"
          style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);
                 background:var(--surface-elev);">

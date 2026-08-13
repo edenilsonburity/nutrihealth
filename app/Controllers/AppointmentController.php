@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Config\Database;
 use App\Models\Appointment;
 use App\Repositories\AppointmentRepository;
+use App\Repositories\AppointmentTypeRepository;
 use App\Repositories\ConsultationRepository;
 use App\Repositories\ConsultationBodyMeasurementsRepository;
 use App\Repositories\PatientRepository;
@@ -14,6 +15,7 @@ class AppointmentController
 {
     private PDO $pdo;
     private AppointmentRepository $appointmentRepo;
+    private AppointmentTypeRepository $appointmentTypeRepo;
     private PatientRepository $patientRepo;
     private UserRepository $userRepo;
     private ConsultationRepository $consultationRepo;
@@ -24,6 +26,7 @@ class AppointmentController
         $db                 = new Database();
         $pdo                = $db->getConnection();
         $this->appointmentRepo  = new AppointmentRepository($pdo);
+        $this->appointmentTypeRepo = new AppointmentTypeRepository($pdo);
         $this->patientRepo      = new PatientRepository($pdo);
         $this->userRepo         = new UserRepository($pdo);
         $this->consultationRepo = new ConsultationRepository($pdo);
@@ -66,6 +69,7 @@ class AppointmentController
             'patients'      => $patients,
             'nutritionists' => $nutritionists,
             'selectedNutritionist' => $nutritionistId,
+            'typeLabels'    => $this->appointmentTypeRepo->allAsMap(),
         ]);
     }
 
@@ -77,6 +81,8 @@ class AppointmentController
         $patients      = $this->patientRepo->all();
         $allUsers      = $this->userRepo->all();
         $nutritionists = array_filter($allUsers, fn($u) => $u->typeUser === 'N');
+        $appointmentTypes = $this->appointmentTypeRepo->allActive();
+        $defaultType = $appointmentTypes[0]->code ?? '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
@@ -84,7 +90,7 @@ class AppointmentController
                 'nutritionist_id' => (int)($_POST['nutritionist_id'] ?? 0),
                 'date'            => $_POST['date'] ?? '',
                 'time'            => $_POST['time'] ?? '',
-                'type'            => $_POST['type'] ?? 'PRIMEIRA_CONSULTA',
+                'type'            => $_POST['type'] ?? $defaultType,
                 'status'          => $_POST['status'] ?? 'PENDENTE',
                 'notes'           => trim($_POST['notes'] ?? ''),
             ];
@@ -112,6 +118,7 @@ class AppointmentController
                     'errors'        => $errors,
                     'patients'      => $patients,
                     'nutritionists' => $nutritionists,
+                    'appointmentTypes' => $appointmentTypes,
                     'old'           => $data,
                 ]);
                 return;
@@ -132,13 +139,14 @@ class AppointmentController
 
             $this->appointmentRepo->create($appointment);
 
-            header('Location: /nutrihealth/public/?controller=appointment&action=index&msg=created');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=index&msg=created');
             exit;
         }
 
         $this->view('appointments/create', [
             'patients'      => $patients,
             'nutritionists' => $nutritionists,
+            'appointmentTypes' => $appointmentTypes,
         ]);
     }
 
@@ -149,19 +157,20 @@ class AppointmentController
     {
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
-            header('Location: /nutrihealth/public/?controller=appointment&action=index');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=index');
             exit;
         }
 
         $appointment = $this->appointmentRepo->find($id);
         if (!$appointment) {
-            header('Location: /nutrihealth/public/?controller=appointment&action=index&msg=notfound');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=index&msg=notfound');
             exit;
         }
 
         $patients      = $this->patientRepo->all();
         $allUsers      = $this->userRepo->all();
         $nutritionists = array_filter($allUsers, fn($u) => $u->typeUser === 'N');
+        $appointmentTypes = $this->appointmentTypeRepo->all();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
@@ -169,7 +178,7 @@ class AppointmentController
                 'nutritionist_id' => (int)($_POST['nutritionist_id'] ?? 0),
                 'date'            => $_POST['date'] ?? '',
                 'time'            => $_POST['time'] ?? '',
-                'type'            => $_POST['type'] ?? 'PRIMEIRA_CONSULTA',
+                'type'            => $_POST['type'] ?? $appointment->type,
                 'status'          => $_POST['status'] ?? 'PENDENTE',
                 'notes'           => trim($_POST['notes'] ?? ''),
             ];
@@ -197,6 +206,7 @@ class AppointmentController
                     'errors'        => $errors,
                     'patients'      => $patients,
                     'nutritionists' => $nutritionists,
+                    'appointmentTypes' => $appointmentTypes,
                     'appointment'   => $appointment,
                     'old'           => $data,
                 ]);
@@ -214,7 +224,7 @@ class AppointmentController
 
             $this->appointmentRepo->update($appointment);
 
-            header('Location: /nutrihealth/public/?controller=appointment&action=index&msg=updated');
+            header('Location: ' . BASE_URL . '/?controller=appointment&action=index&msg=updated');
             exit;
         }
 
@@ -233,6 +243,7 @@ class AppointmentController
         $this->view('appointments/edit', [
             'patients'      => $patients,
             'nutritionists' => $nutritionists,
+            'appointmentTypes' => $appointmentTypes,
             'appointment'   => $appointment,
             'old'           => $old,
         ]);
@@ -249,7 +260,7 @@ class AppointmentController
             $this->appointmentRepo->delete($id);
         }
 
-        header('Location: /nutrihealth/public/?controller=appointment&action=index&msg=deleted');
+        header('Location: ' . BASE_URL . '/?controller=appointment&action=index&msg=deleted');
         exit;
     }
 

@@ -122,6 +122,7 @@ class AppointmentRepository
                 a.start_datetime,
                 a.end_datetime,
                 a.type,
+                at.name         AS type_name,
                 a.status,
                 a.notes,
                 p.name_patient AS patient_name,
@@ -129,6 +130,7 @@ class AppointmentRepository
             FROM appointment a
             JOIN patient p ON p.id = a.patient_id
             JOIN `user` u ON u.id = a.nutritionist_id
+            LEFT JOIN appointment_type at ON at.code = a.type
             WHERE DATE(a.start_datetime) = :day
         ";
 

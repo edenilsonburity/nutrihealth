@@ -131,8 +131,11 @@ $errors = $errors ?? [];
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;">
       <!-- Tipo da consulta -->
       <div>
-        <label for="type" style="display:block;font-size:0.9rem;color:var(--muted);margin-bottom:4px;">
-          Tipo da consulta
+        <label for="type" style="display:block;font-size:0.9rem;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+          <span>Tipo da consulta</span>
+          <a href="<?= BASE_URL ?>/?controller=appointmenttype&action=index" style="font-size:0.78rem;color:var(--primary);">
+            Gerenciar tipos
+          </a>
         </label>
         <select
           id="type"
@@ -140,22 +143,12 @@ $errors = $errors ?? [];
           style="width:100%;padding:10px 12px;border-radius:6px;
                  border:1px solid var(--border);background:var(--surface);color:var(--fg);"
         >
-          <option value="PRIMEIRA_CONSULTA"
-            <?= $old['type'] === 'PRIMEIRA_CONSULTA' ? 'selected' : '' ?>>
-            Primeira Consulta
-          </option>
-          <option value="RETORNO"
-            <?= $old['type'] === 'RETORNO' ? 'selected' : '' ?>>
-            Retorno
-          </option>
-          <option value="AVALIACAO_CORPORAL"
-            <?= $old['type'] === 'AVALIACAO_CORPORAL' ? 'selected' : '' ?>>
-            Avaliação Corporal
-          </option>
-          <option value="ORIENTACAO_NUTRICIONAL"
-            <?= $old['type'] === 'ORIENTACAO_NUTRICIONAL' ? 'selected' : '' ?>>
-            Orientação Nutricional
-          </option>
+          <?php foreach (($appointmentTypes ?? []) as $t): ?>
+            <option value="<?= htmlspecialchars($t->code) ?>"
+              <?= ($old['type'] ?? '') === $t->code ? 'selected' : '' ?>>
+              <?= htmlspecialchars($t->name) ?>
+            </option>
+          <?php endforeach; ?>
         </select>
       </div>
 
@@ -205,7 +198,7 @@ $errors = $errors ?? [];
     </div>
 
     <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
-      <a href="/nutrihealth/public/?controller=appointment&action=calendar"
+      <a href="<?= BASE_URL ?>/?controller=appointment&action=calendar"
          class="btn"
          style="padding:8px 14px;border-radius:999px;border:1px solid var(--border);
                 background:var(--surface-elev);">
